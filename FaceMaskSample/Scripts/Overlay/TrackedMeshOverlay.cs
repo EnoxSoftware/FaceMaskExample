@@ -1,0 +1,210 @@
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
+using OpenCVForUnity.RectangleTrack;
+
+namespace FaceMaskSample
+{
+    public class TrackedMeshOverlay : MonoBehaviour
+    {
+        public int Interval = 1;
+        public int PoolSize = 10;
+
+        [SerializeField]
+        private GameObject baseObject;
+        public GameObject BaseObject
+        {
+            get {
+                return baseObject;
+            }
+            set {
+                baseObject = value;
+                setBaseObject(baseObject);
+            }
+        }
+
+        public float Width
+        {
+            get {
+                return targetWidth;
+            }
+        }
+
+        public float Height
+        {
+            get {
+                return targetHeight;
+            }
+        }
+
+        protected Transform targetTransform;
+        protected float targetWidth = 0;
+        protected float targetHeight = 0;
+        protected Transform overlayTransform;
+        protected ObjectPool objectPool;
+        protected Dictionary<int, TrackedMesh> showingObjects = new Dictionary<int, TrackedMesh>();
+
+        void Awake()
+        {
+            init("MeshOverlay");
+        }
+
+        void OnDestroy()
+        {
+            overlayTransform = null;
+            targetTransform = null;
+            targetWidth = 0;
+            targetHeight = 0;
+            showingObjects.Clear();
+            if(objectPool != null)
+            {
+                Destroy(objectPool.gameObject);
+                objectPool = null;
+            }
+        }
+
+        protected GameObject getPoolObject(Transform parent)
+        {
+            if(objectPool == null) return null;
+
+            GameObject newObj = objectPool.GetInstance(parent);
+            if(newObj != null){
+                newObj.transform.parent = parent;
+                return newObj;
+            }else{
+                return null;
+            }
+        }
+
+        protected virtual void init(String name)
+        {
+            GameObject obj = new GameObject(name);
+            overlayTransform = obj.transform;
+            overlayTransform.parent = gameObject.transform.parent;
+            UpdateOverlayTransform();
+
+            if(baseObject != null)
+                setBaseObject (baseObject);
+        }
+
+        protected virtual void setBaseObject (GameObject obj)
+        {
+            if (obj.GetComponent<TrackedMesh>() == null)
+            {
+                Debug.LogWarning("Object is not TrackedMesh.");
+                return;
+            }
+
+            if(objectPool != null){
+                Destroy(objectPool);
+            }
+
+            objectPool = overlayTransform.gameObject.AddComponent<ObjectPool>();
+            objectPool.prefab = obj;
+            objectPool.maxCount = PoolSize;
+            objectPool.prepareCount = (int)PoolSize / 2;
+            objectPool.Interval = Interval;
+        }
+
+        public virtual void UpdateOverlayTransform(Transform targetTransform)
+        {
+            if (targetTransform == null)
+            {
+                this.targetTransform = null;
+                return;
+            }
+
+            targetWidth = targetTransform.localScale.x;
+            targetHeight = targetTransform.localScale.y;
+            this.targetTransform = targetTransform;
+            overlayTransform.localPosition = new Vector3(targetTransform.localPosition.x, targetTransform.localPosition.y, targetTransform .localPosition.z - 0.1f);
+        }
+
+        public virtual void UpdateOverlayTransform()
+        {
+            Renderer renderer = gameObject.GetComponent<Renderer>();
+            if(renderer == null) return;
+
+            targetWidth = renderer.bounds.size.x;
+            targetHeight = renderer.bounds.size.y;
+            Vector3 center = renderer.bounds.center;
+            Debug.Log(targetWidth + " " + targetHeight + " " + center);
+            overlayTransform.localPosition = new Vector3(center.x, center.y, center.z - 0.1f);
+        }
+
+        public virtual TrackedMesh GetObjectById(int id)
+        {
+            if (showingObjects.ContainsKey(id))
+            {
+                return showingObjects[id];
+            }
+            return null;
+        }
+
+        public virtual TrackedMesh CreateObject(int id, Texture2D tex = null)
+        {
+            if (!showingObjects.ContainsKey(id)){
+                GameObject obj = getPoolObject(overlayTransform);
+                if (obj == null) return null;
+                TrackedMesh tm = obj.GetComponent<TrackedMesh>();
+                if (tm != null)
+                {
+                    tm.Id = id;
+                    tm.transform.localPosition = new Vector3(0, 0, 0);
+                    tm.transform.localRotation = new Quaternion();
+                    tm.transform.localScale = new Vector3(1, 1, 1);
+                    if (tex != null) tm.Material.mainTexture = tex;
+                    showingObjects.Add(id, tm);
+                }
+                return tm;
+            }
+            else{
+                return null;
+            }
+        }
+
+        public virtual void UpdateObject(int id, Vector3[] vertices, int[] triangles = null, Vector2[] uv = null)
+        {
+            if (showingObjects.ContainsKey(id)){
+
+                TrackedMesh tm = showingObjects[id];
+
+                if(vertices.Length != tm.MeshFilter.mesh.vertices.Length) Debug.LogError("The number of vertices does not match.");
+                tm.MeshFilter.mesh.vertices = vertices;
+
+                if (triangles != null)
+                {
+                    tm.MeshFilter.mesh.triangles = triangles;
+                }
+                if (uv != null)
+                {
+                    tm.MeshFilter.mesh.uv = uv;
+                }
+
+                tm.MeshFilter.mesh.RecalculateBounds();
+                tm.MeshFilter.mesh.RecalculateNormals();
+            }
+        }
+
+        public virtual void DeleteObject(int id)
+        {
+            if (showingObjects.ContainsKey(id))
+            {
+                if(showingObjects[id] != null)
+                    showingObjects[id].gameObject.SetActive(false);
+                showingObjects.Remove(id);
+            }
+        }
+
+        public virtual void Reset()
+        {
+            foreach (int key in showingObjects.Keys)
+            {
+                if(showingObjects[key] != null)
+                    showingObjects[key].gameObject.SetActive(false);
+            }
+            
+            showingObjects.Clear();
+        }
+    }
+}
