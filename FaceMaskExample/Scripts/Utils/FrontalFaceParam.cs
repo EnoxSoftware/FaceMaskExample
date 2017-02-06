@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OpenCVForUnity;
 
-namespace FaceMaskSample
+namespace FaceMaskExample
 {
     public class FrontalFaceParam : IDisposable
     {

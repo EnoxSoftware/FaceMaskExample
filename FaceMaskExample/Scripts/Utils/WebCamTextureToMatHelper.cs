@@ -4,7 +4,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace FaceMaskSample
+namespace FaceMaskExample
 {
     /// <summary>
     /// Web cam texture to mat helper.

@@ -7,12 +7,12 @@ using WebGLFileUploader;
 using UnityEngine.SceneManagement;
 #endif
 
-namespace WebGLFileUploaderSample
+namespace WebGLFileUploaderExample
 {
     /// <summary>
-    /// File Upload sample.
+    /// File Upload example.
     /// </summary>
-    public class FileUploadSample : MonoBehaviour
+    public class FileUploadExample : MonoBehaviour
     {
 
         // Use this for initialization
@@ -83,9 +83,9 @@ namespace WebGLFileUploaderSample
         public void OnBackButton ()
         {
             #if UNITY_5_3 || UNITY_5_3_OR_NEWER
-            SceneManager.LoadScene ("WebGLFileUploaderSample");
+            SceneManager.LoadScene ("WebGLFileUploaderExample");
             #else
-            Application.LoadLevel ("WebGLFileUploaderSample");
+            Application.LoadLevel ("WebGLFileUploaderExample");
             #endif
         }
 

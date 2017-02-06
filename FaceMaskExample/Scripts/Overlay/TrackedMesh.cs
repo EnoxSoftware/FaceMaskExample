@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace FaceMaskSample
+namespace FaceMaskExample
 {
     [RequireComponent(typeof(MeshRenderer), typeof(MeshFilter), typeof(MeshCollider))]
     public class TrackedMesh : MonoBehaviour
@@ -50,6 +50,7 @@ namespace FaceMaskSample
                 throw new Exception("Material does not exist.");
 
             material = meshRenderer.material;
+            meshRenderer.sortingOrder = 32767;
         }
 
         void OnDestroy(){

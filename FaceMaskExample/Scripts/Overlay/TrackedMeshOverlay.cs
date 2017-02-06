@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OpenCVForUnity.RectangleTrack;
 
-namespace FaceMaskSample
+namespace FaceMaskExample
 {
     public class TrackedMeshOverlay : MonoBehaviour
     {
@@ -69,7 +69,7 @@ namespace FaceMaskSample
 
             GameObject newObj = objectPool.GetInstance(parent);
             if(newObj != null){
-                newObj.transform.parent = parent;
+                newObj.transform.SetParent(parent, false);
                 return newObj;
             }else{
                 return null;
@@ -81,7 +81,6 @@ namespace FaceMaskSample
             GameObject obj = new GameObject(name);
             overlayTransform = obj.transform;
             overlayTransform.parent = gameObject.transform.parent;
-            UpdateOverlayTransform();
 
             if(baseObject != null)
                 setBaseObject (baseObject);
@@ -113,23 +112,13 @@ namespace FaceMaskSample
                 this.targetTransform = null;
                 return;
             }
-
+            
             targetWidth = targetTransform.localScale.x;
             targetHeight = targetTransform.localScale.y;
             this.targetTransform = targetTransform;
-            overlayTransform.localPosition = new Vector3(targetTransform.localPosition.x, targetTransform.localPosition.y, targetTransform .localPosition.z - 0.1f);
-        }
-
-        public virtual void UpdateOverlayTransform()
-        {
-            Renderer renderer = gameObject.GetComponent<Renderer>();
-            if(renderer == null) return;
-
-            targetWidth = renderer.bounds.size.x;
-            targetHeight = renderer.bounds.size.y;
-            Vector3 center = renderer.bounds.center;
-            Debug.Log(targetWidth + " " + targetHeight + " " + center);
-            overlayTransform.localPosition = new Vector3(center.x, center.y, center.z - 0.1f);
+            overlayTransform.localPosition = targetTransform.localPosition;
+            overlayTransform.localRotation = targetTransform.localRotation;
+            overlayTransform.localScale = targetTransform.localScale;
         }
 
         public virtual TrackedMesh GetObjectById(int id)
@@ -150,10 +139,14 @@ namespace FaceMaskSample
                 if (tm != null)
                 {
                     tm.Id = id;
-                    tm.transform.localPosition = new Vector3(0, 0, 0);
+                    tm.transform.localPosition = Vector3.zero;
                     tm.transform.localRotation = new Quaternion();
-                    tm.transform.localScale = new Vector3(1, 1, 1);
-                    if (tex != null) tm.Material.mainTexture = tex;
+                    tm.transform.localScale = Vector3.one;
+                    if (tex != null) 
+                    {
+                        Renderer tmRenderer = tm.transform.GetComponent<Renderer>();
+                        tmRenderer.sharedMaterial.SetTexture ("_MainTex", tex);
+                    }
                     showingObjects.Add(id, tm);
                 }
                 return tm;

@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace FaceMaskSample
+namespace FaceMaskExample
 {
-    public static class SampleDataSet
+    public static class ExampleDataSet
     {
         private static int index = 0;
         public static int Index
@@ -193,12 +193,12 @@ namespace FaceMaskSample
             }
         };
 
-        public static SampleMaskData GetData(){
-            return new SampleMaskData(filenames[index], faceRcts[index], landmarkPoints[index]);
+        public static ExampleMaskData GetData(){
+            return new ExampleMaskData(filenames[index], faceRcts[index], landmarkPoints[index]);
         }
 
-        public static SampleMaskData GetData(int index){
-            return new SampleMaskData(filenames[index], faceRcts[index], landmarkPoints[index]);
+        public static ExampleMaskData GetData(int index){
+            return new ExampleMaskData(filenames[index], faceRcts[index], landmarkPoints[index]);
         }
 
         public static void Next(){
@@ -208,7 +208,7 @@ namespace FaceMaskSample
         }
     }
 
-    public class SampleMaskData
+    public class ExampleMaskData
     {
         private string filename;
         public string FileName
@@ -228,7 +228,7 @@ namespace FaceMaskSample
             get { return this.landmarkPoints; }
         }
         
-        public SampleMaskData(string filename, Rect faceRect, List<Vector2> landmarkPoints){
+        public ExampleMaskData(string filename, Rect faceRect, List<Vector2> landmarkPoints){
             this.filename = filename;
             this.faceRect = faceRect;
             this.landmarkPoints = landmarkPoints;

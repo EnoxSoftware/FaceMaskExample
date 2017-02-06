@@ -1,4 +1,4 @@
-FaceMask Sample
+FaceMask Example
 ====================
 
 Overview
@@ -12,15 +12,15 @@ Demo Video
 Demo
 -----
 - WebGL
-<https://enoxsoftware.github.io/FaceMaskSample/webgl_sample/index.html>
+<https://enoxsoftware.github.io/FaceMaskExample/webgl_example/index.html>
 - WebGL(using shape_predictor_68_face_landmarks_for_mobile.dat)
-<https://enoxsoftware.github.io/FaceMaskSample/webgl_sample_for_mobile/index.html>
+<https://enoxsoftware.github.io/FaceMaskExample/webgl_example_for_mobile/index.html>
 - Android
-<https://play.google.com/store/apps/details?id=com.enoxsoftware.facemasksample>
+<https://play.google.com/store/apps/details?id=com.enoxsoftware.facemaskexample>
 
 Manual
 -----
-[ReadMe.pdf](/FaceMaskSample/ReadMe.pdf)
+[ReadMe.pdf](/FaceMaskExample/ReadMe.pdf)
 
 
 

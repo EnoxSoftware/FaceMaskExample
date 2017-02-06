@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace FaceMaskSample
+namespace FaceMaskExample
 {
     public class ObjectPool : MonoBehaviour
     {
@@ -88,7 +88,7 @@ namespace FaceMaskSample
             {
                 GameObject obj = (GameObject)GameObject.Instantiate(prefab);
                 obj.SetActive(true);
-                obj.transform.parent = parent;
+                obj.transform.SetParent(parent, false);
                 pooledObjectList.Add(obj);
                 return obj;
             }

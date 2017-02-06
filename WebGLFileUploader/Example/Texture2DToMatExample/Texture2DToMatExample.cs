@@ -8,12 +8,12 @@ using UnityEngine.SceneManagement;
 #endif
 using OpenCVForUnity;
 
-namespace WebGLFileUploaderSample
+namespace WebGLFileUploaderExample
 {
     /// <summary>
-    /// Texture2D to mat sample.
+    /// Texture2D to mat example.
     /// </summary>
-    public class Texture2DToMatSample : MonoBehaviour
+    public class Texture2DToMatExample : MonoBehaviour
     {
 
         // Use this for initialization
@@ -85,9 +85,9 @@ namespace WebGLFileUploaderSample
         public void OnBackButton ()
         {
             #if UNITY_5_3 || UNITY_5_3_OR_NEWER
-            SceneManager.LoadScene ("WebGLFileUploaderSample");
+            SceneManager.LoadScene ("WebGLFileUploaderExample");
             #else
-            Application.LoadLevel ("WebGLFileUploaderSample");
+            Application.LoadLevel ("WebGLFileUploaderExample");
             #endif
         }
 

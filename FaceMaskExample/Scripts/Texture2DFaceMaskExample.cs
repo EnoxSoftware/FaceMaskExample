@@ -12,12 +12,12 @@ using WebGLFileUploader;
 using UnityEngine.SceneManagement;
 #endif
 
-namespace FaceMaskSample
+namespace FaceMaskExample
 {
     /// <summary>
-    /// Texture2D face mask sample.
+    /// Texture2D face mask example.
     /// </summary>
-    public class Texture2DFaceMaskSample : MonoBehaviour
+    public class Texture2DFaceMaskExample : MonoBehaviour
     {
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace FaceMaskSample
             gameObject.transform.localScale = new Vector3 (imgTexture.width, imgTexture.height, 1);
             Debug.Log ("Screen.width " + Screen.width + " Screen.height " + Screen.height + " Screen.orientation " + Screen.orientation);
 
-            meshOverlay.UpdateOverlayTransform ();
+            meshOverlay.UpdateOverlayTransform (gameObject.transform);
             meshOverlay.Reset ();
 
 
@@ -194,7 +194,7 @@ namespace FaceMaskSample
                 if (cascade == null)
                     cascade = new CascadeClassifier (haarcascade_frontalface_alt_xml_filepath);
                 if (cascade.empty ()) {
-                    Debug.LogError ("cascade file is not loaded.Please copy from “FaceTrackerSample/StreamingAssets/” to “Assets/StreamingAssets/” folder. ");
+                    Debug.LogError ("cascade file is not loaded.Please copy from “FaceTrackerExample/StreamingAssets/” to “Assets/StreamingAssets/” folder. ");
                 }
                 
                 // convert image to greyscale.
@@ -238,8 +238,8 @@ namespace FaceMaskSample
             }
             face_nums = face_nums.OrderBy (i => System.Guid.NewGuid ()).ToArray ();
 
-            float offsetX = meshOverlay.Width / 2f;
-            float offsetY = meshOverlay.Height / 2f; 
+            float imageWidth = meshOverlay.Width;
+            float imageHeight = meshOverlay.Height; 
             float maskImageWidth = imgTexture.width;
             float maskImageHeight = imgTexture.height;
 
@@ -252,8 +252,8 @@ namespace FaceMaskSample
                 Vector3[] vertices = tm.MeshFilter.mesh.vertices;
                 if (vertices.Length == landmarkPoints [face_nums [i]].Count) {
                     for (int j = 0; j < vertices.Length; j++) {
-                        vertices [j].x = landmarkPoints [face_nums [i]] [j].x - offsetX;
-                        vertices [j].y = offsetY - landmarkPoints [face_nums [i]] [j].y;
+                        vertices [j].x = landmarkPoints [face_nums [i]] [j].x / imageWidth - 0.5f;
+                        vertices [j].y = 0.5f - landmarkPoints [face_nums [i]] [j].y / imageHeight;
                     }
                 }
                 Vector2[] uv = tm.MeshFilter.mesh.uv;
@@ -324,9 +324,9 @@ namespace FaceMaskSample
         public void OnBackButton ()
         {
             #if UNITY_5_3 || UNITY_5_3_OR_NEWER
-            SceneManager.LoadScene ("FaceMaskSample");
+            SceneManager.LoadScene ("FaceMaskExample");
             #else
-            Application.LoadLevel ("FaceMaskSample");
+            Application.LoadLevel ("FaceMaskExample");
             #endif
         }
 

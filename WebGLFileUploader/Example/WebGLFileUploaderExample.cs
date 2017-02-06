@@ -5,9 +5,9 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 #endif
 
-namespace WebGLFileUploaderSample
+namespace WebGLFileUploaderExample
 {
-    public class WebGLFileUploaderSample : MonoBehaviour
+    public class WebGLFileUploaderExample : MonoBehaviour
     {
 
         // Use this for initialization
@@ -31,21 +31,21 @@ namespace WebGLFileUploaderSample
             #endif
         }
 
-        public void OnFileUploadSample ()
+        public void OnFileUploadExample ()
         {
             #if UNITY_5_3 || UNITY_5_3_OR_NEWER
-            SceneManager.LoadScene ("FileUploadSample");
+            SceneManager.LoadScene ("FileUploadExample");
             #else
-            Application.LoadLevel ("FileUploadSample");
+            Application.LoadLevel ("FileUploadExample");
             #endif
         }
 
-        public void OnTexture2DToMatSample ()
+        public void OnTexture2DToMatExample ()
         {
             #if UNITY_5_3 || UNITY_5_3_OR_NEWER
-            SceneManager.LoadScene ("Texture2DToMatSample");
+            SceneManager.LoadScene ("Texture2DToMatExample");
             #else
-            Application.LoadLevel ("Texture2DToMatSample");
+            Application.LoadLevel ("Texture2DToMatExample");
             #endif
         }
     }

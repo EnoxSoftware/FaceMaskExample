@@ -5,12 +5,12 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 #endif
 
-namespace FaceMaskSample
+namespace FaceMaskExample
 {
     /// <summary>
-    /// Face mask sample.
+    /// Face mask example.
     /// </summary>
-    public class FaceMaskSample : MonoBehaviour
+    public class FaceMaskExample : MonoBehaviour
     {
 
         // Use this for initialization
@@ -34,30 +34,30 @@ namespace FaceMaskSample
             #endif
         }
 
-        public void OnTexture2DFaceMaskSample ()
+        public void OnTexture2DFaceMaskExample ()
         {
             #if UNITY_5_3 || UNITY_5_3_OR_NEWER
-            SceneManager.LoadScene ("Texture2DFaceMaskSample");
+            SceneManager.LoadScene ("Texture2DFaceMaskExample");
             #else
-            Application.LoadLevel ("Texture2DFaceMaskSample");
+            Application.LoadLevel ("Texture2DFaceMaskExample");
             #endif
         }
         
-        public void OnVideoCaptureFaceMaskSample ()
+        public void OnVideoCaptureFaceMaskExample ()
         {
             #if UNITY_5_3 || UNITY_5_3_OR_NEWER
-            SceneManager.LoadScene ("VideoCaptureFaceMaskSample");
+            SceneManager.LoadScene ("VideoCaptureFaceMaskExample");
             #else
-            Application.LoadLevel ("VideoCaptureFaceMaskSample");
+            Application.LoadLevel ("VideoCaptureFaceMaskExample");
             #endif
         }
 
-        public void OnWebCamTextureFaceMaskSample ()
+        public void OnWebCamTextureFaceMaskExample ()
         {
             #if UNITY_5_3 || UNITY_5_3_OR_NEWER
-            SceneManager.LoadScene ("WebCamTextureFaceMaskSample");
+            SceneManager.LoadScene ("WebCamTextureFaceMaskExample");
             #else
-            Application.LoadLevel ("WebCamTextureFaceMaskSample");
+            Application.LoadLevel ("WebCamTextureFaceMaskExample");
             #endif
         }
     }
