@@ -5,11 +5,10 @@ namespace OpenCVForUnity.RectangleTrack
 
     public enum TrackedState : int
     {
-        
         NEW = 0,
         PENDING = 1,
         NEW_DISPLAYED = 2,
-        DISPLAYED =3,
+        DISPLAYED = 3,
         NEW_HIDED = 4,
         HIDED = 5,
         DELETED = 6
@@ -22,11 +21,11 @@ namespace OpenCVForUnity.RectangleTrack
         public int numFramesNotDetected;
         public int id;
         public TrackedState state;
+
         public OpenCVForUnity.Rect position
         {
-            get { return lastPositions[lastPositions.Count - 1].clone(); }
+            get { return lastPositions [lastPositions.Count - 1].clone(); }
         }
-        
 
         static private int _id = 0;
 
@@ -44,10 +43,10 @@ namespace OpenCVForUnity.RectangleTrack
             id = _id;
         }
 
-            static int getNextId()
-            {
-                _id++;
-                return _id;
-            }
-	}
+        static int getNextId()
+        {
+            _id++;
+            return _id;
+        }
+    }
 }

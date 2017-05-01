@@ -15,5 +15,5 @@
             this.id = id;
             this.state = state;
         }
-	}
+    }
 }

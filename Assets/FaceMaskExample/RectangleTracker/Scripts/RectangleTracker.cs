@@ -5,7 +5,11 @@ using UnityEngine;
 
 namespace OpenCVForUnity.RectangleTrack
 {
-
+    /// <summary>
+    /// Rectangle tracker.
+    /// This cord referred to https://github.com/Itseez/opencv/blob/master/modules/objdetect/src/detection_based_tracker.cpp.
+    /// v 1.0.0
+    /// </summary>
     public class RectangleTracker : IDisposable
     {
         public List<TrackedObject> TrackedObjects
@@ -159,7 +163,6 @@ namespace OpenCVForUnity.RectangleTrack
                 int bestArea = -1;
 
                 //int numpositions = (int)curObject.lastPositions.Count;
-
                 //if (numpositions > 0) UnityEngine.Debug.LogError("numpositions > 0 is false");
 
                 //Rect prevRect = curObject.lastPositions[numpositions - 1];
@@ -205,7 +208,7 @@ namespace OpenCVForUnity.RectangleTrack
                     //Debug.Log("DetectionBasedTracker::updateTrackedObjects: The best correspondence for i=" + i + " is j=" + bestIndex);
 
                     correspondence[bestIndex] = i;
-                    
+
                     Rect bestRect = detectedObjects[bestIndex];
 
                     for (int j = 0; j < N2; j++)
@@ -261,7 +264,7 @@ namespace OpenCVForUnity.RectangleTrack
                 }
             }
 
-            
+
             int t = 0;
             TrackedObject it;
             while (t < trackedObjects.Count)
@@ -324,13 +327,13 @@ namespace OpenCVForUnity.RectangleTrack
                 //if (n > 0) UnityEngine.Debug.LogError("n > 0 is false");
 
                 Rect r = trackedObjects[i].lastPositions[n - 1].clone();
-/*
-                if (r.area() == 0)
-                {
-                    Debug.Log("DetectionBasedTracker::process: ERROR: ATTENTION: strange algorithm's behavior: trackedObjects[i].rect() is empty");
-                    continue;
-                }
-*/
+                /*
+                                if (r.area() == 0)
+                                {
+                                    Debug.Log("DetectionBasedTracker::process: ERROR: ATTENTION: strange algorithm's behavior: trackedObjects[i].rect() is empty");
+                                    continue;
+                                }
+                */
 
                 //correction by speed of rectangle
                 if (n > 1)
@@ -343,7 +346,7 @@ namespace OpenCVForUnity.RectangleTrack
                     r.x += (int)Math.Round(shift.x);
                     r.y += (int)Math.Round(shift.y);
                 }
- 
+
                 rectsWhereRegions[i] = r;
             }
 
@@ -455,35 +458,35 @@ namespace OpenCVForUnity.RectangleTrack
             else
                 return new Rect();
         }
-/*
-        private bool IsCollideByCircle(Rect a, Rect b, float coeffRectangleOverlap)
-        {
-            int r1 = (int)(a.width / 2.0f);
-            int r2 = (int)(b.width / 2.0f);
-            int px1 = a.x + r1;
-            int py1 = a.y + r1;
-            int px2 = b.x + r2;
-            int py2 = b.y + r2;
+        /*
+                private bool IsCollideByCircle(Rect a, Rect b, float coeffRectangleOverlap)
+                {
+                    int r1 = (int)(a.width / 2.0f);
+                    int r2 = (int)(b.width / 2.0f);
+                    int px1 = a.x + r1;
+                    int py1 = a.y + r1;
+                    int px2 = b.x + r2;
+                    int py2 = b.y + r2;
 
-            if ((px2 - px1) * (px2 - px1) + (py2 - py1) * (py2 - py1) <= (r1 + r2) * (r1 + r2) * coeffRectangleOverlap)
-                return true;
-            else
-                return false;
-        }
-*/
+                    if ((px2 - px1) * (px2 - px1) + (py2 - py1) * (py2 - py1) <= (r1 + r2) * (r1 + r2) * coeffRectangleOverlap)
+                        return true;
+                    else
+                        return false;
+                }
+        */
         private bool IsCollideByRectangle(Rect a, Rect b, float coeffRectangleOverlap)
         {
             int mw = (int)(a.width * coeffRectangleOverlap);
             int mh = (int)(a.height * coeffRectangleOverlap);
             int mx1 = (int)(a.x + (a.width - mw) / 2.0f);
-            int my1 = (int)(a.x + (a.height - mh) / 2.0f);
+            int my1 = (int)(a.y + (a.height - mh) / 2.0f);
             int mx2 = (int)(mx1 + mw);
             int my2 = (int)(my1 + mh);
 
             int ew = (int)(b.width * coeffRectangleOverlap);
             int eh = (int)(b.height * coeffRectangleOverlap);
             int ex1 = (int)(b.x + (b.width - ew) / 2.0f);
-            int ey1 = (int)(b.x + (b.height - eh) / 2.0f);
+            int ey1 = (int)(b.y + (b.height - eh) / 2.0f);
             int ex2 = (int)(ex1 + ew);
             int ey2 = (int)(ey1 + eh);
 
