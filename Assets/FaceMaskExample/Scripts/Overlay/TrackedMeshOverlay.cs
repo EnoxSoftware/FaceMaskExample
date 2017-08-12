@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using OpenCVForUnity.RectangleTrack;
@@ -7,30 +7,30 @@ namespace FaceMaskExample
 {
     public class TrackedMeshOverlay : MonoBehaviour
     {
-        public int Interval = 1;
-        public int PoolSize = 10;
+        public int interval = 1;
+        public int poolSize = 10;
 
         [SerializeField]
-        private GameObject baseObject;
-        public GameObject BaseObject
+        protected GameObject _baseObject;
+        public GameObject baseObject
         {
             get {
-                return baseObject;
+                return _baseObject;
             }
             set {
-                baseObject = value;
-                setBaseObject(baseObject);
+                _baseObject = value;
+                SetBaseObject(_baseObject);
             }
         }
 
-        public float Width
+        public float width
         {
             get {
                 return targetWidth;
             }
         }
 
-        public float Height
+        public float height
         {
             get {
                 return targetHeight;
@@ -46,7 +46,7 @@ namespace FaceMaskExample
 
         void Awake()
         {
-            init("MeshOverlay");
+            Initialize("TrackedMeshOverlay");
         }
 
         void OnDestroy()
@@ -63,7 +63,7 @@ namespace FaceMaskExample
             }
         }
 
-        protected GameObject getPoolObject(Transform parent)
+        protected virtual GameObject GetPoolObject(Transform parent)
         {
             if(objectPool == null) return null;
 
@@ -76,21 +76,21 @@ namespace FaceMaskExample
             }
         }
 
-        protected virtual void init(String name)
+        protected virtual void Initialize(String name)
         {
             GameObject obj = new GameObject(name);
             overlayTransform = obj.transform;
             overlayTransform.parent = gameObject.transform.parent;
 
-            if(baseObject != null)
-                setBaseObject (baseObject);
+            if(_baseObject != null)
+                SetBaseObject (_baseObject);
         }
 
-        protected virtual void setBaseObject (GameObject obj)
+        protected virtual void SetBaseObject (GameObject obj)
         {
             if (obj.GetComponent<TrackedMesh>() == null)
             {
-                Debug.LogWarning("Object is not TrackedMesh.");
+                Debug.LogWarning("This gameObject is not TrackedMesh.");
                 return;
             }
 
@@ -100,9 +100,9 @@ namespace FaceMaskExample
 
             objectPool = overlayTransform.gameObject.AddComponent<ObjectPool>();
             objectPool.prefab = obj;
-            objectPool.maxCount = PoolSize;
-            objectPool.prepareCount = (int)PoolSize / 2;
-            objectPool.Interval = Interval;
+            objectPool.maxCount = poolSize;
+            objectPool.prepareCount = (int)poolSize / 2;
+            objectPool.Interval = interval;
         }
 
         public virtual void UpdateOverlayTransform(Transform targetTransform)
@@ -132,13 +132,15 @@ namespace FaceMaskExample
 
         public virtual TrackedMesh CreateObject(int id, Texture2D tex = null)
         {
+            if (_baseObject == null) Debug.LogError("The baseObject does not exist.");
+
             if (!showingObjects.ContainsKey(id)){
-                GameObject obj = getPoolObject(overlayTransform);
+                GameObject obj = GetPoolObject(overlayTransform);
                 if (obj == null) return null;
                 TrackedMesh tm = obj.GetComponent<TrackedMesh>();
                 if (tm != null)
                 {
-                    tm.Id = id;
+                    tm.id = id;
                     tm.transform.localPosition = Vector3.zero;
                     tm.transform.localRotation = new Quaternion();
                     tm.transform.localScale = Vector3.one;
@@ -156,26 +158,30 @@ namespace FaceMaskExample
             }
         }
 
-        public virtual void UpdateObject(int id, Vector3[] vertices, int[] triangles = null, Vector2[] uv = null)
+        public virtual void UpdateObject(int id, Vector3[] vertices, int[] triangles = null, Vector2[] uv = null, Vector2[] uv2 = null)
         {
             if (showingObjects.ContainsKey(id)){
-
                 TrackedMesh tm = showingObjects[id];
 
-                if(vertices.Length != tm.MeshFilter.mesh.vertices.Length) Debug.LogError("The number of vertices does not match.");
-                tm.MeshFilter.mesh.vertices = vertices;
+                if(vertices.Length != tm.meshFilter.mesh.vertices.Length) Debug.LogError("The number of vertices does not match.");
+                tm.meshFilter.mesh.vertices = vertices;
 
                 if (triangles != null)
                 {
-                    tm.MeshFilter.mesh.triangles = triangles;
+                    tm.meshFilter.mesh.triangles = triangles;
                 }
                 if (uv != null)
                 {
-                    tm.MeshFilter.mesh.uv = uv;
+                    tm.meshFilter.mesh.uv = uv;
                 }
 
-                tm.MeshFilter.mesh.RecalculateBounds();
-                tm.MeshFilter.mesh.RecalculateNormals();
+                if (uv2 != null)
+                {
+                    tm.meshFilter.mesh.uv2 = uv2;
+                }
+
+                tm.meshFilter.mesh.RecalculateBounds();
+                tm.meshFilter.mesh.RecalculateNormals();
             }
         }
 

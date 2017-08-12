@@ -6,35 +6,50 @@ using System.Runtime.InteropServices;
 
 namespace WebGLFileUploader
 {
+    /// <summary>
+    /// WebGL File Uploader.
+    /// v 1.0.2
+    /// Usage:
+    /// Select a dedicated template ([FileUploader5.3-5.5] or [FileUploader5.6-2017]) in the Player Settings inspector (menu: Edit > Project Settings > Player).
+    /// </summary>
     public static class WebGLFileUploadManager
     {
+        /// <summary>
+        /// Occurs when on file uploaded.
+        /// </summary>
+        public static event Action<UploadedFileInfo[]> onFileUploaded;
 
-        public static event Action<UploadedFileInfo[]> FileUploadEventHandler;
-
-        public static bool IsInitialized 
-        {
-            get {
-                #if UNITY_WEBGL && !UNITY_EDITOR
-                return Unity_FileUploadManager_IsInitialized ();
-                #else
-                return false;
-                #endif
-            }
-        }
-
-        public static void InitFileUploader (bool isDropInput = false, bool isOverlay = false)
+        /// <summary>
+        /// Shows the file upload UI.
+        /// </summary>
+        /// <returns><c>true</c>, if file upload UI was showd, <c>false</c> otherwise.</returns>
+        /// <param name="isDropInput">If set to <c>true</c> is drop input.</param>
+        /// <param name="isOverlay">If set to <c>true</c> is overlay.</param>
+        /// <param name="x">The x coordinate.</param>
+        /// <param name="y">The y coordinate.</param>
+        /// <param name="width">Width.</param>
+        /// <param name="height">Height.</param>
+        public static bool Show (bool isDropInput = false, bool isOverlay = false, int x = -1, int y = -1, int width = -1, int height = -1)
         {
             #if UNITY_WEBGL && !UNITY_EDITOR
-            if(IsInitialized) Dispose ();
+            bool success = WebGLFileUploadManager.Unity_FileUploadManager_Show(isDropInput, isOverlay, x, y, width, height);
             WebGLFileUploadManager.Unity_FileUploadManager_SetCallback (WebGLFileUploadManager.Callback);
-            WebGLFileUploadManager.Unity_FileUploadManager_InitFileUploader(isDropInput, isOverlay);
+            return success;
+            #else
+            return false;
             #endif
         }
 
-        public static void PopupDialog (string titleText = "", string uploadBtnText = "", string cancelBtnText = "")
+        /// <summary>
+        /// Popup the file upload dialog UI.
+        /// </summary>
+        /// <returns><c>true</c>, if dialog was popuped, <c>false</c> otherwise.</returns>
+        /// <param name="titleText">Title text.</param>
+        /// <param name="uploadBtnText">Upload button text.</param>
+        /// <param name="cancelBtnText">Cancel button text.</param>
+        public static bool PopupDialog (string titleText = "", string uploadBtnText = "", string cancelBtnText = "")
         {
             #if UNITY_WEBGL && !UNITY_EDITOR
-            if(IsInitialized) Dispose ();
             if (Screen.fullScreen)
             {
                 if( Unity_FileUploadManager_IsRunningOnEdgeBrowser() ){
@@ -43,17 +58,42 @@ namespace WebGLFileUploader
                     Unity_FileUploadManager_HideUnityScreenIfHtmlOverlayCant();
                 }
             }
+            bool success = WebGLFileUploadManager.Unity_FileUploadManager_PopupDialog(titleText, uploadBtnText, cancelBtnText);
             WebGLFileUploadManager.Unity_FileUploadManager_SetCallback (WebGLFileUploadManager.Callback);
-            WebGLFileUploadManager.Unity_FileUploadManager_PopupDialog(titleText, uploadBtnText, cancelBtnText);
+            return success;
+            #else
+            return false;
             #endif
         }
 
+        /// <summary>
+        /// Hides the file upload UI.
+        /// </summary>
+        public static void Hide ()
+        {
+            #if UNITY_WEBGL && !UNITY_EDITOR
+            WebGLFileUploadManager.Unity_FileUploadManager_Hide ();
+            #endif
+        }
 
         public static void Dispose ()
         {
             #if UNITY_WEBGL && !UNITY_EDITOR
-            if(!IsInitialized) return;
             WebGLFileUploadManager.Unity_FileUploadManager_Dispose();
+            #endif
+        }
+
+        public static void Enable ()
+        {
+            #if UNITY_WEBGL && !UNITY_EDITOR
+            WebGLFileUploadManager.Unity_FileUploadManager_Enable ();
+            #endif
+        }
+        
+        public static void Disable ()
+        {
+            #if UNITY_WEBGL && !UNITY_EDITOR
+            WebGLFileUploadManager.Unity_FileUploadManager_Disable();
             #endif
         }
 
@@ -81,30 +121,6 @@ namespace WebGLFileUploader
         {
             #if UNITY_WEBGL && !UNITY_EDITOR
             WebGLFileUploadManager.Unity_FileUploadManager_SetImageShrinkingSize (width, height);
-            #endif
-        }
-
-        public static void SetInputArea (int x = -1, int y = -1, int width = -1, int height = -1)
-        {
-            #if UNITY_WEBGL && !UNITY_EDITOR
-            if(!IsInitialized) return;
-            WebGLFileUploadManager.Unity_FileUploadManager_SetInputArea (x, y, width, height);
-            #endif
-        }
-
-        public static void Show ()
-        {
-            #if UNITY_WEBGL && !UNITY_EDITOR
-            if(!IsInitialized) return;
-            WebGLFileUploadManager.Unity_FileUploadManager_Show ();
-            #endif
-        }
-
-        public static void Hide ()
-        {
-            #if UNITY_WEBGL && !UNITY_EDITOR
-            if(!IsInitialized) return;
-            WebGLFileUploadManager.Unity_FileUploadManager_Hide ();
             #endif
         }
 
@@ -263,17 +279,24 @@ namespace WebGLFileUploader
         }
             
         #if UNITY_WEBGL && !UNITY_EDITOR
-        [DllImport ("__Internal")]
-        private static extern bool Unity_FileUploadManager_IsInitialized ();
 
         [DllImport ("__Internal")]
-        private static extern bool Unity_FileUploadManager_InitFileUploader (bool isDropInput, bool isOverlay);
+        private static extern bool Unity_FileUploadManager_Show (bool isDropInput, bool isOverlay, int x, int y, int width, int height);
 
         [DllImport ("__Internal")]
         private static extern bool Unity_FileUploadManager_PopupDialog (string title, string uploadBtnText, string cancelBtnText);
 
         [DllImport ("__Internal")]
+        private static extern void Unity_FileUploadManager_Hide ();
+
+        [DllImport ("__Internal")]
         private static extern void Unity_FileUploadManager_Dispose ();
+
+        [DllImport ("__Internal")]
+        private static extern void Unity_FileUploadManager_Enable ();
+
+        [DllImport ("__Internal")]
+        private static extern void Unity_FileUploadManager_Disable ();
 
         [DllImport ("__Internal")]
         private static extern void Unity_FileUploadManager_SetCallback (Action<string> callback);
@@ -283,21 +306,21 @@ namespace WebGLFileUploader
         {
             Debug.Log ("Callback called " + fileUploadDataJSON);
 
-            if(FileUploadEventHandler == null) {
-                Debug.Log ("FileUploadEventHandler == null");
+            if(onFileUploaded == null) {
+                Debug.Log ("onFileUploaded == null");
                 return;
             }
 
             UploadedFileInfo[] files;
             if (!string.IsNullOrEmpty(fileUploadDataJSON)) {
                 files = JsonUtility.FromJson<FileUploadResult>(fileUploadDataJSON).files;
-                FileUploadEventHandler.Invoke (files);
+                onFileUploaded.Invoke (files);
             } else {
                 files = new UploadedFileInfo[0]{};
-                FileUploadEventHandler.Invoke (files);
+                onFileUploaded.Invoke (files);
             }
                 
-            //Debug.Log (FileUploadEventHandler);
+            //Debug.Log (onFileUploaded);
         }
 
         [DllImport ("__Internal")]
@@ -311,15 +334,6 @@ namespace WebGLFileUploader
 
         [DllImport ("__Internal")]
         private static extern void Unity_FileUploadManager_SetImageEncodeSetting (bool enable, int threshold);
-
-        [DllImport ("__Internal")]
-        private static extern void Unity_FileUploadManager_SetInputArea (int x, int y, int width, int height);
-
-        [DllImport ("__Internal")]
-        private static extern void Unity_FileUploadManager_Show ();
-
-        [DllImport ("__Internal")]
-        private static extern void Unity_FileUploadManager_Hide ();
 
         [DllImport ("__Internal")]
         private static extern bool Unity_FileUploadManager_IsDropInput ();

@@ -7,18 +7,18 @@ namespace FaceMaskExample
 {
     public static class ExampleDataSet
     {
-        private static int index = 0;
-        public static int Index
+        public static int index
         {
-            get { return index; }
+            get { return _index; }
         }
+        static int _index = 0;
 
-        public static int Length
+        public static int length
         {
             get { return filenames.Length; }
         }
 
-        private static string[] filenames = new string[5]{
+        static string[] filenames = new string[5]{
             "face_mask1",
             "face_mask2",
             "face_mask3",
@@ -26,7 +26,7 @@ namespace FaceMaskExample
             "face_mask5"
         };
 
-        private static Rect[] faceRcts = new Rect[5]{
+        static Rect[] faceRcts = new Rect[5]{
             new Rect(),
             new Rect(),
             new Rect(),
@@ -36,7 +36,7 @@ namespace FaceMaskExample
             new Rect(56, 85, 190, 196)
         };
 
-        private static List<Vector2>[] landmarkPoints = new List<Vector2>[5]{
+        static List<Vector2>[] landmarkPoints = new List<Vector2>[5]{
             null,
             null,
             null,
@@ -194,7 +194,7 @@ namespace FaceMaskExample
         };
 
         public static ExampleMaskData GetData(){
-            return new ExampleMaskData(filenames[index], faceRcts[index], landmarkPoints[index]);
+            return new ExampleMaskData(filenames[_index], faceRcts[_index], landmarkPoints[_index]);
         }
 
         public static ExampleMaskData GetData(int index){
@@ -202,36 +202,36 @@ namespace FaceMaskExample
         }
 
         public static void Next(){
-            index++;
-            if(index == filenames.Length)
-                index = 0;
+            _index++;
+            if(_index == filenames.Length)
+                _index = 0;
         }
     }
 
     public class ExampleMaskData
     {
-        private string filename;
-        public string FileName
+        public string fileName
         {
-            get { return this.filename; }
+            get { return this._filename; }
         }
+        string _filename;
 
-        private Rect faceRect;
-        public Rect FaceRect
+        public Rect faceRect
         {
-            get { return this.faceRect; }
+            get { return this._faceRect; }
         }
+        Rect _faceRect;
 
-        private List<Vector2> landmarkPoints;
-        public List<Vector2> LandmarkPoints
+        public List<Vector2> landmarkPoints
         {
-            get { return this.landmarkPoints; }
+            get { return this._landmarkPoints; }
         }
+        List<Vector2> _landmarkPoints;
         
         public ExampleMaskData(string filename, Rect faceRect, List<Vector2> landmarkPoints){
-            this.filename = filename;
-            this.faceRect = faceRect;
-            this.landmarkPoints = landmarkPoints;
+            this._filename = filename;
+            this._faceRect = faceRect;
+            this._landmarkPoints = landmarkPoints;
         }
     }
 }

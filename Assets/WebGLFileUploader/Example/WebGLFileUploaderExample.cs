@@ -9,7 +9,6 @@ namespace WebGLFileUploaderExample
 {
     public class WebGLFileUploaderExample : MonoBehaviour
     {
-
         // Use this for initialization
         void Start ()
         {
@@ -22,7 +21,7 @@ namespace WebGLFileUploaderExample
     
         }
 
-        public void OnShowLicenseButton ()
+        public void OnShowLicenseButtonClick ()
         {
             #if UNITY_5_3 || UNITY_5_3_OR_NEWER
             SceneManager.LoadScene ("ShowLicense");
@@ -31,7 +30,7 @@ namespace WebGLFileUploaderExample
             #endif
         }
 
-        public void OnFileUploadExample ()
+        public void OnFileUploadExampleButtonClick ()
         {
             #if UNITY_5_3 || UNITY_5_3_OR_NEWER
             SceneManager.LoadScene ("FileUploadExample");
@@ -40,7 +39,7 @@ namespace WebGLFileUploaderExample
             #endif
         }
 
-        public void OnTexture2DToMatExample ()
+        public void OnTexture2DToMatExampleButtonClick ()
         {
             #if UNITY_5_3 || UNITY_5_3_OR_NEWER
             SceneManager.LoadScene ("Texture2DToMatExample");

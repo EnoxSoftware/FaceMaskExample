@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.IO;
 using UnityEngine;
 using WebGLFileUploader;
@@ -15,7 +15,6 @@ namespace WebGLFileUploaderExample
     /// </summary>
     public class Texture2DToMatExample : MonoBehaviour
     {
-
         // Use this for initialization
         void Start ()
         {
@@ -27,15 +26,15 @@ namespace WebGLFileUploaderExample
                 Application.isMobilePlatform
                 #endif
             ) {
-                if(!WebGLFileUploadManager.IsInitialized) WebGLFileUploadManager.InitFileUploader (false);
+                WebGLFileUploadManager.Show (false);
                 WebGLFileUploadManager.SetDescription("Select image files (.png|.jpg|.gif)");
 
             }else{
-                if(!WebGLFileUploadManager.IsInitialized) WebGLFileUploadManager.InitFileUploader (true);
+                WebGLFileUploadManager.Show (true);
                 WebGLFileUploadManager.SetDescription("Drop image files (.png|.jpg|.gif) here");
             }
             WebGLFileUploadManager.SetAllowedFileName("\\.(png|jpe?g|gif)$");
-            WebGLFileUploadManager.FileUploadEventHandler += fileUploadHandler;
+            WebGLFileUploadManager.onFileUploaded += OnFileUploaded;
         }
 
         // Update is called once per frame
@@ -44,14 +43,21 @@ namespace WebGLFileUploaderExample
 
         }
 
+        /// <summary>
+        /// Raises the destroy event.
+        /// </summary>
         void OnDestroy ()
         {
-            WebGLFileUploadManager.FileUploadEventHandler -= fileUploadHandler;
+            WebGLFileUploadManager.onFileUploaded -= OnFileUploaded;
             WebGLFileUploadManager.Dispose();
         }
 
-        private void fileUploadHandler(UploadedFileInfo[] result){
-
+        /// <summary>
+        /// Raises the file uploaded event.
+        /// </summary>
+        /// <param name="result">Uploaded file infos.</param>
+        private void OnFileUploaded(UploadedFileInfo[] result)
+        {
             if(result.Length == 0) {
                 Debug.Log("File upload Error!");
             }else{
@@ -82,28 +88,16 @@ namespace WebGLFileUploaderExample
             }
         }
 
-        public void OnBackButton ()
+        /// <summary>
+        /// Raises the back button click event.
+        /// </summary>
+        public void OnBackButtonClick ()
         {
             #if UNITY_5_3 || UNITY_5_3_OR_NEWER
             SceneManager.LoadScene ("WebGLFileUploaderExample");
             #else
             Application.LoadLevel ("WebGLFileUploaderExample");
             #endif
-        }
-
-        public void OnButtonOverlayToggleButton ()
-        {
-            WebGLFileUploadManager.InitFileUploader(false, !WebGLFileUploadManager.IsOverlay);
-        }
-
-        public void OnDropOverlayToggleButton ()
-        {
-            WebGLFileUploadManager.InitFileUploader(true, !WebGLFileUploadManager.IsOverlay);
-        }
-
-        public void OnPopupDialogButton ()
-        {
-            WebGLFileUploadManager.PopupDialog(null, "Select image files (.png|.jpg|.gif)");
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.IO;
 using UnityEngine;
 using WebGLFileUploader;
@@ -14,11 +14,9 @@ namespace WebGLFileUploaderExample
     /// </summary>
     public class FileUploadExample : MonoBehaviour
     {
-
         // Use this for initialization
         void Start ()
         {
-
             Debug.Log("WebGLFileUploadManager.getOS: " + WebGLFileUploadManager.getOS);
             Debug.Log("WebGLFileUploadManager.isMOBILE: " + WebGLFileUploadManager.IsMOBILE);
             Debug.Log("WebGLFileUploadManager.getUserAgent: " + WebGLFileUploadManager.GetUserAgent);
@@ -31,17 +29,17 @@ namespace WebGLFileUploaderExample
                     Application.isMobilePlatform
                 #endif
             ) {
-                if(!WebGLFileUploadManager.IsInitialized) WebGLFileUploadManager.InitFileUploader (false);
+                WebGLFileUploadManager.Show (false);
                 WebGLFileUploadManager.SetDescription("Select image files (.png|.jpg|.gif)");
 
             }else{
-                if(!WebGLFileUploadManager.IsInitialized) WebGLFileUploadManager.InitFileUploader (true);
+                WebGLFileUploadManager.Show (true);
                 WebGLFileUploadManager.SetDescription("Drop image files (.png|.jpg|.gif) here");
             }
             WebGLFileUploadManager.SetImageEncodeSetting(true);
             WebGLFileUploadManager.SetAllowedFileName("\\.(png|jpe?g|gif)$");
             WebGLFileUploadManager.SetImageShrinkingSize(1280 ,960);
-            WebGLFileUploadManager.FileUploadEventHandler += fileUploadHandler;
+            WebGLFileUploadManager.onFileUploaded += OnFileUploaded;
         }
 
         // Update is called once per frame
@@ -50,14 +48,21 @@ namespace WebGLFileUploaderExample
 
         }
 
+        /// <summary>
+        /// Raises the destroy event.
+        /// </summary>
         void OnDestroy ()
         {
-            WebGLFileUploadManager.FileUploadEventHandler -= fileUploadHandler;
+            WebGLFileUploadManager.onFileUploaded -= OnFileUploaded;
             WebGLFileUploadManager.Dispose();
         }
 
-        private void fileUploadHandler(UploadedFileInfo[] result){
-
+        /// <summary>
+        /// Raises the file uploaded event.
+        /// </summary>
+        /// <param name="result">Uploaded file infos.</param>
+        private void OnFileUploaded(UploadedFileInfo[] result)
+        {
             if(result.Length == 0) {
                 Debug.Log("File upload Error!");
             }else{
@@ -80,7 +85,10 @@ namespace WebGLFileUploaderExample
             }
         }
 
-        public void OnBackButton ()
+        /// <summary>
+        /// Raises the back button click event.
+        /// </summary>
+        public void OnBackButtonClick ()
         {
             #if UNITY_5_3 || UNITY_5_3_OR_NEWER
             SceneManager.LoadScene ("WebGLFileUploaderExample");
@@ -89,20 +97,44 @@ namespace WebGLFileUploaderExample
             #endif
         }
 
-        public void OnButtonOverlayToggleButton ()
+        /// <summary>
+        /// Raises the switch button overlay state button click event.
+        /// </summary>
+        public void OnSwitchButtonOverlayStateButtonClick ()
         {
-            WebGLFileUploadManager.InitFileUploader(false, !WebGLFileUploadManager.IsOverlay);
+            WebGLFileUploadManager.Show(false, !WebGLFileUploadManager.IsOverlay);
         }
 
-        public void OnDropOverlayToggleButton ()
+        /// <summary>
+        /// Raises the switch drop overlay state button click event.
+        /// </summary>
+        public void OnSwitchDropOverlayStateButtonClick ()
         {
-            WebGLFileUploadManager.InitFileUploader(true, !WebGLFileUploadManager.IsOverlay);
+            WebGLFileUploadManager.Show(true, !WebGLFileUploadManager.IsOverlay);
         }
 
-        public void OnPopupDialogButton ()
+        /// <summary>
+        /// Raises the popup dialog button click event.
+        /// </summary>
+        public void OnPopupDialogButtonClick ()
         {
             WebGLFileUploadManager.PopupDialog(null, "Select image files (.png|.jpg|.gif)");
         }
 
+        /// <summary>
+        /// Raises the enable button click event.
+        /// </summary>
+        public void OnEnableButtonClick ()
+        {
+            WebGLFileUploadManager.Enable ();
+        }
+
+        /// <summary>
+        /// Raises the disable button click event.
+        /// </summary>
+        public void OnDisableButtonClick ()
+        {
+            WebGLFileUploadManager.Disable ();
+        }
     }
 }

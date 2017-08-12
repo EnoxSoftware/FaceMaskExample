@@ -219,13 +219,93 @@
             NOT_ALLOWED_FILENAME : 8,
             
         },
+        initialize: function () {
+            Unity_FileUploadManager.createRequiredHTML();
+            Unity_FileUploadManager.isInitialized = true;
+
+            return Unity_FileUploadManager.isInitialized;
+        },
+        hide: function () {
+            if (!Unity_FileUploadManager.isInitialized) return;
+
+            var fileUploaderElem = document.getElementById('file_uploader');
+
+            if (Unity_FileUploadManager.isOverlay) {
+                fileUploaderElem.style.removeProperty("width");
+                fileUploaderElem.style.removeProperty("height");
+                fileUploaderElem.classList.remove('overlay_canvas');
+            }
+
+            var dropAreaElem = document.getElementById('file_drop_area');
+            if (dropAreaElem != null && Unity_FileUploadManager.isDropInput) {
+                // Remove the dnd listeners.
+                dropAreaElem.removeEventListener('dragover', Unity_FileUploadManager.handleDragOver, false);
+                dropAreaElem.removeEventListener('drop', Unity_FileUploadManager.handleFileSelect, false);
+                dropAreaElem.removeEventListener('dragenter', Unity_FileUploadManager.handleDragEnter, false);
+                dropAreaElem.removeEventListener('dragleave', Unity_FileUploadManager.handleDragLeave, false);
+
+                fileUploaderElem.innerHTML = '';
+                fileUploaderElem.classList.remove('isDropInput');
+            }
+
+            var fileInputElem = document.getElementById('file_input');
+            if (fileInputElem != null && (!Unity_FileUploadManager.isDropInput || Unity_FileUploadManager.isPopupDialog)) {
+                // Remove the input listeners.
+                fileInputElem.removeEventListener('change', Unity_FileUploadManager.handleFileSelect, false);
+
+                fileUploaderElem.innerHTML = '';
+                fileUploaderElem.classList.remove('isButtonInput');
+            }
+            fileUploaderElem.classList.add('hidden');
+
+            if (!Unity_FileUploadManager.isPopupDialog) {
+                var fileListElem = document.getElementById('file_uploader_file_list');
+                fileListElem.innerHTML = '';
+                fileListElem.classList.add('hidden');
+            }
+
+            if (Unity_FileUploadManager.isPopupDialog) {
+                Unity_FileUploadManager.popupDialogCompleteFunc = null;
+                document.getElementById("popup_dialog_warp").style.display = "none";
+                document.getElementById('popup_dialog_warp').innerHTML = '';
+            }
+
+
+            Unity_FileUploadManager.jsCallCsCallback = null;
+
+            Unity_FileUploadManager.isDropInput = false;
+            Unity_FileUploadManager.isOverlay = false;
+            Unity_FileUploadManager.isPopupDialog = false;
+        },
+        enable: function () {
+            if (Unity_FileUploadManager.isPopupDialog) return;
+
+            if(Unity_FileUploadManager.isDropInput){
+                var fileDropArea = document.getElementById('file_drop_area');
+                if (fileDropArea != null) fileDropArea.classList.remove('disable');
+            }else{
+                var fileInputButton = document.getElementById('file_input_button');
+                if (fileInputButton != null) fileInputButton.classList.remove('disable');
+            }
+        },
+        disable: function () {
+            if (Unity_FileUploadManager.isPopupDialog) return;
+
+            if (Unity_FileUploadManager.isDropInput) {
+                var fileDropArea = document.getElementById('file_drop_area');
+                if (fileDropArea != null) fileDropArea.classList.add('disable');
+            } else {
+                var fileInputButton = document.getElementById('file_input_button');
+                if (fileInputButton != null) fileInputButton.classList.add('disable');
+            }
+        },
         checkExistAPI:function() {
             return (!window.File || !window.FileReader || !window.Promise) ? false : true;
         },
         createRequiredHTML:function() {
             var fileUploaderElem = document.getElementById('file_uploader');
             if(fileUploaderElem == null){
-                var canvas = document.getElementById('canvas');
+                var canvas = document.getElementById('canvas') || document.getElementById('gameContainer');
                 var fileUploaderElem = document.createElement('div');
                 fileUploaderElem.id = 'file_uploader';
                 canvas.parentNode.insertBefore(fileUploaderElem, canvas.nextSibling); 
@@ -455,16 +535,17 @@
                 }else{
                     returnStr = "";
                 }
-                
-                var buffer = _malloc(lengthBytesUTF8(returnStr) + 1);
-                writeStringToMemory(returnStr, buffer);
+
+                var size = lengthBytesUTF8(returnStr) + 1;
+                var buffer = _malloc(size);
+                stringToUTF8(returnStr, buffer, size);
+
                 Runtime.dynCall('vi', Unity_FileUploadManager.jsCallCsCallback, [buffer]);
                 _free(buffer);
             }
-            
 
 
-            _Unity_FileUploadManager_Disable();
+            Unity_FileUploadManager.disable();
             
             var results = [];
             for (var i = 0, f; f = files[i]; i++) {
@@ -497,14 +578,14 @@
                 
                     if(Unity_FileUploadManager.isDebug) Unity_FileUploadManager.outputFileList(results);
                     callbackCS(results);
-                    _Unity_FileUploadManager_Enable();
+                    Unity_FileUploadManager.enable();
                     if(Unity_FileUploadManager.popupDialogCompleteFunc != null) Unity_FileUploadManager.popupDialogCompleteFunc();
                 })
                 .catch(function(err) {
                     console.log(err);
                     
                     callbackCS(null);
-                    _Unity_FileUploadManager_Enable();
+                    Unity_FileUploadManager.enable();
                     if(Unity_FileUploadManager.popupDialogCompleteFunc != null) Unity_FileUploadManager.popupDialogCompleteFunc();
                 });
                 
@@ -542,14 +623,11 @@
             document.getElementById('file_uploader_file_list').innerHTML += "<ul>" + output.join('') + "</ul>";
         }
     },
-    Unity_FileUploadManager_IsInitialized: function()
+    Unity_FileUploadManager_Show: function (isDropInput, isOverlay, x, y, width, height)
     {
-        if(Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_IsInitialized()");
-        return Unity_FileUploadManager.isInitialized;
-    },
-    Unity_FileUploadManager_InitFileUploader: function(isDropInput, isOverlay)
-    {
-        if(Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_InitFileUploader()");
+        if (Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_Show()");
+
+        Unity_FileUploadManager.hide();
         
         Unity_FileUploadManager.isDropInput = isDropInput;
         Unity_FileUploadManager.isOverlay = isOverlay;
@@ -560,7 +638,7 @@
             return false;
         }
 
-        Unity_FileUploadManager.createRequiredHTML();
+        if (!Unity_FileUploadManager.isInitialized) Unity_FileUploadManager.initialize();
         var fileUploaderElem = document.getElementById('file_uploader');
         var fileListElem = document.getElementById('file_uploader_file_list');
 
@@ -602,7 +680,7 @@
             }
             
             
-            var canvasElem = document.getElementById('canvas');
+            var canvasElem = document.getElementById('canvas') || document.getElementById('gameContainer');
             if(isOverlay){
         
                 fileUploaderElem.style.setProperty("width", canvasElem.width + "px", "important");
@@ -618,40 +696,40 @@
                     inputButtonElem.classList.add('overlay');
                 }
             }
-            Unity_FileUploadManager.isInitialized = true;
+
+            var targetElem;
+            if (Unity_FileUploadManager.isDropInput) {
+                targetElem = document.getElementById('file_drop_area');
+            } else {
+                targetElem = document.getElementById('file_input_button');
+            }
+
+            if (x < 0 || y < 0 || width < 0 || height < 0) {
+                targetElem.style.top = '';
+                targetElem.style.left = '';
+                targetElem.style.width = '';
+                targetElem.style.height = '';
+                targetElem.style.lineHeight = '';
+            } else {
+                targetElem.style.top = x + 'px';
+                targetElem.style.left = y + 'px';
+                targetElem.style.width = width + 'px';
+                targetElem.style.height = height + 'px';
+                targetElem.style.lineHeight = height + 'px';
+            }
             
             return Unity_FileUploadManager.isInitialized;
     },
-    
-    /*
-    Unity_FileUploadManager_InitUGUIButton: function()
-    {
-        if(Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_InitUGUIButton()");
-        
-        Unity_FileUploadManager.isDropInput = false;
-        Unity_FileUploadManager.isOverlay = false;
-        
-        var fileInputElem = document.getElementById('file_input');
-
-            var e = document.createEvent("MouseEvents");
-            e.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false,
-                false, false, false, 0, null);
-            fileInputElem.dispatchEvent(e);
-    
-        return Unity_FileUploadManager.isInitialized;
-    },
-    */
-    
-    
     Unity_FileUploadManager_PopupDialog: function(titleText, uploadBtnText, cancelBtnText)
     {
-        if(Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_PopupDialog()");
+        if (Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_PopupDialog()");
+
+        Unity_FileUploadManager.hide();
     
         titleText = Pointer_stringify(titleText);
         uploadBtnText = Pointer_stringify(uploadBtnText);
         cancelBtnText = Pointer_stringify(cancelBtnText);
     
-        Unity_FileUploadManager.isDropInput = false;
         Unity_FileUploadManager.isPopupDialog = true;
         
         if(!Unity_FileUploadManager.checkExistAPI()) {
@@ -659,7 +737,7 @@
             return false;
         }
 
-        Unity_FileUploadManager.createRequiredHTML();
+        if (!Unity_FileUploadManager.isInitialized) Unity_FileUploadManager.initialize();
         Unity_FileUploadManager.descriptionStr = "Select files";
             
             var html = '  <div id="popup_dialog">' + 
@@ -684,9 +762,10 @@
             popup_dialog_warpElem.innerHTML = html;
             popup_dialog_warpElem.style.display = "";
             
-            Unity_FileUploadManager.popupDialogCompleteFunc = function (){
-                document.getElementById("canvas").style.display="";
-                _Unity_FileUploadManager_Dispose();
+            Unity_FileUploadManager.popupDialogCompleteFunc = function () {
+                var canvasElem = document.getElementById('canvas') || document.getElementById('gameContainer');
+                canvasElem.style.display = "";
+                Unity_FileUploadManager.hide();
             };
             
             
@@ -714,14 +793,22 @@
             document.getElementById("popup_dialog_title").innerText = (titleText != '') ? titleText : 'File Uploader';
             document.getElementById("file_input_description").innerText = (uploadBtnText != '') ? uploadBtnText : Unity_FileUploadManager.descriptionStr;
             document.getElementById("popup_dialog_cancel_button").value = (cancelBtnText != '') ? cancelBtnText : 'Cancel';
-            
-        Unity_FileUploadManager.isInitialized = true;
+
+
+            var fileListElem = document.getElementById('file_uploader_file_list');
+            fileListElem.innerHTML = '';
+            if (Unity_FileUploadManager.isDebug) {
+                fileListElem.classList.remove('hidden');
+            } else {
+                fileListElem.classList.add('hidden');
+            }
         
         return Unity_FileUploadManager.isInitialized;
     },
     Unity_FileUploadManager_HideUnityScreenIfHtmlOverlayCant: function(){
-        if( navigator.userAgent.indexOf("Chrome/") < 0 ){
-            document.getElementById("canvas").style.display="none";
+        if (navigator.userAgent.indexOf("Chrome/") < 0) {
+            var canvasElem = document.getElementById('canvas') || document.getElementById('gameContainer');
+            canvasElem.style.display = "none";
         }
     },
     Unity_FileUploadManager_IsRunningOnEdgeBrowser: function(){
@@ -730,57 +817,30 @@
         }
         return true;
     },
-    Unity_FileUploadManager_Dispose: function()
+    Unity_FileUploadManager_Hide: function()
     {
-        if(Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_Dispose()");
-        
-        
+        if (Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_Hide()");
+
+        Unity_FileUploadManager.hide();
+    },
+    Unity_FileUploadManager_Dispose: function () {
+        if (Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_Dispose()");
+
+        Unity_FileUploadManager.hide();
+        /*
         var fileUploaderElem = document.getElementById('file_uploader');
-        
-        if(Unity_FileUploadManager.isOverlay){
-            fileUploaderElem.style.removeProperty("width");
-            fileUploaderElem.style.removeProperty("height");
-            fileUploaderElem.classList.remove('overlay_canvas');
+        if (fileUploaderElem != null) {
+            var fileUploaderElem_parent = fileUploaderElem.parentNode;
+            fileUploaderElem_parent.removeChild(fileUploaderElem);
         }
-        
-        
-        if(Unity_FileUploadManager.isDropInput){
-            var dropAreaElem = document.getElementById('file_drop_area');
-            // Remove the dnd listeners.
-            dropAreaElem.removeEventListener('dragover', Unity_FileUploadManager.handleDragOver, false);
-            dropAreaElem.removeEventListener('drop', Unity_FileUploadManager.handleFileSelect, false);
-            dropAreaElem.removeEventListener('dragenter', Unity_FileUploadManager.handleDragEnter, false);
-            dropAreaElem.removeEventListener('dragleave', Unity_FileUploadManager.handleDragLeave, false);
-            
-            fileUploaderElem.innerHTML = '';
-            fileUploaderElem.classList.remove('isDropInput');
-        }else{
-            // Remove the input listeners.
-            document.getElementById('file_input').removeEventListener('change', Unity_FileUploadManager.handleFileSelect, false);
-            
-            fileUploaderElem.innerHTML = '';
-            fileUploaderElem.classList.remove('isButtonInput');
-        }
-        fileUploaderElem.classList.add('hidden');
-        
+
         var fileListElem = document.getElementById('file_uploader_file_list');
-        fileListElem.innerHTML = '';
-        fileListElem.classList.add('hidden');
-        
-        
-        if(Unity_FileUploadManager.isPopupDialog){
-            Unity_FileUploadManager.popupDialogCompleteFunc = null;
-            document.getElementById("popup_dialog_warp").style.display = "none";
-            document.getElementById('popup_dialog_warp').innerHTML = '';
+        if (fileListElem != null) {
+            var fileListElem_parent = fileListElem.parentNode;
+            fileListElem_parent.removeChild(fileListElem);
         }
-        
-        
-        Unity_FileUploadManager.jsCallCsCallback = null;
-        
+        */
         Unity_FileUploadManager.isInitialized = false;
-        Unity_FileUploadManager.isDropInput = false;
-        Unity_FileUploadManager.isOverlay = false;
-        Unity_FileUploadManager.isPopupDialog = false;
     },
     Unity_FileUploadManager_SetCallback: function(callback)
     {
@@ -852,77 +912,19 @@
         Unity_FileUploadManager.imageShrinkingSizeWidth = width>0 ? width : 1;
         Unity_FileUploadManager.imageShrinkingSizeHeight = height>0 ? height : 1;
     },
-    Unity_FileUploadManager_SetInputArea: function(x, y, width, height)
-    {
-        if(Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_SetInputArea()");
-        
-        if(Unity_FileUploadManager.isPopupDialog) return;
-        
-        var targetElem;
-        if(Unity_FileUploadManager.isDropInput){
-            targetElem = document.getElementById('file_drop_area');
-        }else{
-            targetElem = document.getElementById('file_input_button');
-        }
-        
-        if(x < 0 || y < 0 || width < 0 || height < 0){
-            targetElem.style.top = '';
-            targetElem.style.left = '';
-            targetElem.style.width = '';
-            targetElem.style.height = '';
-            targetElem.style.lineHeight = '';
-        }else{
-            targetElem.style.top = x + 'px';
-            targetElem.style.left = y + 'px';
-            targetElem.style.width = width + 'px';
-            targetElem.style.height = height + 'px';
-            targetElem.style.lineHeight = height + 'px';
-        }
-    },
-    Unity_FileUploadManager_Show: function()
-    {
-        if(Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_Show()");
-        
-        var fileUploaderElem = document.getElementById('file_uploader');
-        fileUploaderElem.classList.remove('hidden');
-        
-        var fileListElem = document.getElementById('file_uploader_file_list');
-        if(Unity_FileUploadManager.isDebug) fileListElem.classList.remove('hidden');
-    },
-    Unity_FileUploadManager_Hide: function()
-    {
-        if(Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_Hide()");
-        
-        var fileUploaderElem = document.getElementById('file_uploader');
-        fileUploaderElem.classList.add('hidden');
-        
-        var fileListElem = document.getElementById('file_uploader_file_list');
-        fileListElem.classList.add('hidden');
-    },
     Unity_FileUploadManager_Enable: function()
     {
         if(Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_Enable()");
         
-        if(Unity_FileUploadManager.isDropInput){
-            var fileDropArea = document.getElementById('file_drop_area');
-            if(fileDropArea) fileDropArea.classList.remove('disable');
-        }else{
-            var fileInputButton = document.getElementById('file_input_button');
-            if(fileInputButton) fileInputButton.classList.remove('disable');
-        }
+        Unity_FileUploadManager.enable();
     },
     Unity_FileUploadManager_Disable: function()
     {
         if(Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_Disable()");
         
-        if(Unity_FileUploadManager.isDropInput){
-            var fileDropArea = document.getElementById('file_drop_area');
-            if(fileDropArea) fileDropArea.classList.add('disable');
-        }else{
-            var fileInputButton = document.getElementById('file_input_button');
-            if(fileInputButton) fileInputButton.classList.add('disable');
-        }
+        Unity_FileUploadManager.disable();
     },
+    /*
     Unity_FileUploadManager_Click: function()
     {
         if(Unity_FileUploadManager.isDebug) console.log("Unity_FileUploadManager_Click()");
@@ -944,15 +946,17 @@
             e.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false,
                 false, false, false, 0, null);
         foobarElem.dispatchEvent(e);
-        
-        
-        
+
     },
+    */
     Unity_FileUploadManager_GetOS: function()
     {
         var returnStr = Unity_FileUploadManager.detectOS(navigator.userAgent);
-        var buffer = _malloc(lengthBytesUTF8(returnStr) + 1);
-        writeStringToMemory(returnStr, buffer);
+
+        var size = lengthBytesUTF8(returnStr) + 1;
+        var buffer = _malloc(size);
+        stringToUTF8(returnStr, buffer, size);
+
         return buffer;
     },
     Unity_FileUploadManager_IsMobile: function()
@@ -964,14 +968,14 @@
     Unity_FileUploadManager_GetUserAgent: function()
     {
         var returnStr = navigator.userAgent;
-        var buffer = _malloc(lengthBytesUTF8(returnStr) + 1);
-        writeStringToMemory(returnStr, buffer);
+
+        var size = lengthBytesUTF8(returnStr) + 1;
+        var buffer = _malloc(size);
+        stringToUTF8(returnStr, buffer, size);
+
         return buffer;
     }
 };
 autoAddDeps(LibraryFileUploadManager, '$Unity_FileUploadManager');
-autoAddDeps(LibraryFileUploadManager, 'Unity_FileUploadManager_Dispose');
-autoAddDeps(LibraryFileUploadManager, 'Unity_FileUploadManager_Enable');
-autoAddDeps(LibraryFileUploadManager, 'Unity_FileUploadManager_Disable');
 
 mergeInto(LibraryManager.library, LibraryFileUploadManager);
