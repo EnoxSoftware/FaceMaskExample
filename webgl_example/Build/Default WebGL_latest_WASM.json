@@ -1,0 +1,11 @@
+{
+"TOTAL_MEMORY": 536870912,
+"dataUrl": "Default WebGL_latest_WASM.data.unityweb",
+"wasmCodeUrl": "Default WebGL_latest_WASM.wasm.code.unityweb",
+"wasmFrameworkUrl": "Default WebGL_latest_WASM.wasm.framework.unityweb",
+"asmCodeUrl": "Default WebGL_latest_WASM.asm.code.unityweb",
+"asmMemoryUrl": "Default WebGL_latest_WASM.asm.memory.unityweb",
+"asmFrameworkUrl": "Default WebGL_latest_WASM.asm.framework.unityweb",
+"splashScreenStyle": "Dark",
+"backgroundColor": "#231F20"
+}

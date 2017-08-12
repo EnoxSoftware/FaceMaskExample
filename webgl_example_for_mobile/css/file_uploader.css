@@ -85,6 +85,7 @@
 }
 #file_drop_area.disable {
   pointer-events: none;
+  opacity: 0.6;
 }
 
 #file_input_button {
@@ -120,6 +121,7 @@
 }
 #file_input_button.disable {
   pointer-events: none;
+  opacity: 0.6;
 }
 
 #file_input_description {
