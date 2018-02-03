@@ -20,7 +20,7 @@ Demo
 
 Manual
 -----
-[ReadMe.pdf](/FaceMaskExample/ReadMe.pdf)
+[ReadMe.pdf](/Assets/FaceMaskExample/ReadMe.pdf)
 
 
 
