@@ -342,7 +342,7 @@ namespace FaceMaskExample
             }
 
             TextureImporter importer = TextureImporter.GetAtPath (alphaMaskTexturePath) as TextureImporter;
-            importer.textureType = TextureImporterType.Advanced;
+            importer.textureType = TextureImporterType.Default;
             importer.mipmapEnabled = false;
             importer.wrapMode = TextureWrapMode.Clamp;
             importer.maxTextureSize = 1024;

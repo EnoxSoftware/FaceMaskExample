@@ -1,0 +1,130 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &106612
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 403126}
+  - 114: {fileID: 11496078}
+  m_Layer: 0
+  m_Name: Women01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &403126
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 106612}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+--- !u!114 &11496078
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 106612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cea3acc41ae7e1498ab5b898cf0043c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _image: {fileID: 2800000, guid: 48eaa7a1d574ef647af0a2e1834f7250, type: 3}
+  isDynamicMode: 0
+  _faceRect:
+    serializedVersion: 2
+    x: 42
+    y: 137
+    width: 216
+    height: 216
+  _landmarkPoints:
+  - {x: 46, y: 195}
+  - {x: 54, y: 223}
+  - {x: 66, y: 250}
+  - {x: 78, y: 275}
+  - {x: 93, y: 296}
+  - {x: 115, y: 312}
+  - {x: 139, y: 325}
+  - {x: 164, y: 334}
+  - {x: 188, y: 332}
+  - {x: 206, y: 321}
+  - {x: 218, y: 301}
+  - {x: 227, y: 279}
+  - {x: 236, y: 257}
+  - {x: 241, y: 232}
+  - {x: 242, y: 207}
+  - {x: 240, y: 181}
+  - {x: 237, y: 156}
+  - {x: 69, y: 184}
+  - {x: 80, y: 176}
+  - {x: 98, y: 174}
+  - {x: 116, y: 177}
+  - {x: 134, y: 182}
+  - {x: 172, y: 174}
+  - {x: 185, y: 163}
+  - {x: 199, y: 154}
+  - {x: 215, y: 147}
+  - {x: 227, y: 151}
+  - {x: 159, y: 195}
+  - {x: 164, y: 214}
+  - {x: 169, y: 232}
+  - {x: 174, y: 251}
+  - {x: 154, y: 259}
+  - {x: 165, y: 261}
+  - {x: 176, y: 262}
+  - {x: 184, y: 256}
+  - {x: 190, y: 248}
+  - {x: 92, y: 205}
+  - {x: 103, y: 197}
+  - {x: 117, y: 195}
+  - {x: 130, y: 204}
+  - {x: 118, y: 208}
+  - {x: 103, y: 210}
+  - {x: 180, y: 191}
+  - {x: 189, y: 177}
+  - {x: 202, y: 172}
+  - {x: 214, y: 176}
+  - {x: 207, y: 185}
+  - {x: 195, y: 189}
+  - {x: 131, y: 281}
+  - {x: 149, y: 276}
+  - {x: 165, y: 272}
+  - {x: 176, y: 272}
+  - {x: 187, y: 267}
+  - {x: 199, y: 262}
+  - {x: 212, y: 259}
+  - {x: 204, y: 280}
+  - {x: 194, y: 293}
+  - {x: 183, y: 298}
+  - {x: 171, y: 300}
+  - {x: 152, y: 296}
+  - {x: 139, y: 282}
+  - {x: 167, y: 277}
+  - {x: 178, y: 276}
+  - {x: 189, y: 272}
+  - {x: 206, y: 263}
+  - {x: 190, y: 279}
+  - {x: 179, y: 283}
+  - {x: 168, y: 286}
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 106612}
+  m_IsPrefabParent: 1

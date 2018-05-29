@@ -1,0 +1,131 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &166552
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 478316}
+  - 114: {fileID: 11443002}
+  m_Layer: 0
+  m_Name: Panda
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &478316
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 166552}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+--- !u!114 &11443002
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 166552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cea3acc41ae7e1498ab5b898cf0043c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _image: {fileID: 2800000, guid: 4fd4dcb14f9983446b7b67f68114e9ba, type: 3}
+  isDynamicMode: 0
+  enableColorCorrection: 0
+  _faceRect:
+    serializedVersion: 2
+    x: 17
+    y: 64
+    width: 261
+    height: 205
+  _landmarkPoints:
+  - {x: 31, y: 136}
+  - {x: 23, y: 169}
+  - {x: 26, y: 195}
+  - {x: 35, y: 216}
+  - {x: 53, y: 236}
+  - {x: 71, y: 251}
+  - {x: 96, y: 257}
+  - {x: 132, y: 259}
+  - {x: 143, y: 263}
+  - {x: 165, y: 258}
+  - {x: 198, y: 255}
+  - {x: 222, y: 242}
+  - {x: 235, y: 231}
+  - {x: 248, y: 215}
+  - {x: 260, y: 195}
+  - {x: 272, y: 171}
+  - {x: 264, y: 135}
+  - {x: 45, y: 115}
+  - {x: 70, y: 94}
+  - {x: 97, y: 89}
+  - {x: 116, y: 90}
+  - {x: 135, y: 105}
+  - {x: 157, y: 104}
+  - {x: 176, y: 90}
+  - {x: 198, y: 86}
+  - {x: 223, y: 90}
+  - {x: 248, y: 110}
+  - {x: 148, y: 134}
+  - {x: 147, y: 152}
+  - {x: 145, y: 174}
+  - {x: 144, y: 192}
+  - {x: 117, y: 205}
+  - {x: 128, y: 213}
+  - {x: 143, y: 216}
+  - {x: 160, y: 216}
+  - {x: 174, y: 206}
+  - {x: 96, y: 138}
+  - {x: 101, y: 131}
+  - {x: 111, y: 132}
+  - {x: 114, y: 140}
+  - {x: 109, y: 146}
+  - {x: 100, y: 146}
+  - {x: 180, y: 138}
+  - {x: 186, y: 130}
+  - {x: 195, y: 131}
+  - {x: 199, y: 137}
+  - {x: 195, y: 143}
+  - {x: 185, y: 143}
+  - {x: 109, y: 235}
+  - {x: 118, y: 231}
+  - {x: 129, y: 228}
+  - {x: 143, y: 225}
+  - {x: 156, y: 227}
+  - {x: 174, y: 232}
+  - {x: 181, y: 234}
+  - {x: 173, y: 241}
+  - {x: 156, y: 245}
+  - {x: 143, y: 245}
+  - {x: 130, y: 244}
+  - {x: 117, y: 239}
+  - {x: 114, y: 235}
+  - {x: 130, y: 232}
+  - {x: 142, y: 232}
+  - {x: 157, y: 233}
+  - {x: 175, y: 236}
+  - {x: 155, y: 237}
+  - {x: 143, y: 238}
+  - {x: 130, y: 237}
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 166552}
+  m_IsPrefabParent: 1

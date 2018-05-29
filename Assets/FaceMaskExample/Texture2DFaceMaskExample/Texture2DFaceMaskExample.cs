@@ -31,6 +31,16 @@ namespace FaceMaskExample
         public Toggle useDlibFaceDetecterToggle;
 
         /// <summary>
+        /// Determines if enables color correction.
+        /// </summary>
+        public bool enableColorCorrection = true;
+
+        /// <summary>
+        /// The enable color correction toggle.
+        /// </summary>
+        public Toggle enableColorCorrectionToggle;
+
+        /// <summary>
         /// Determines if filters non frontal faces.
         /// </summary>
         public bool filterNonFrontalFaces = false;
@@ -65,11 +75,6 @@ namespace FaceMaskExample
         /// The toggle for switching debug face points display state.
         /// </summary>
         public Toggle displayDebugFacePointsToggle;
-
-        /// <summary>
-        /// The upload image button.
-        /// </summary>
-        public Button uploadImageButton;
         
         /// <summary>
         /// The image texture.
@@ -80,11 +85,16 @@ namespace FaceMaskExample
         /// The cascade.
         /// </summary>
         CascadeClassifier cascade;
-        
+
         /// <summary>
         /// The face landmark detector.
         /// </summary>
         FaceLandmarkDetector faceLandmarkDetector;
+
+        /// <summary>
+        /// The face mask color corrector.
+        /// </summary>
+        FaceMaskColorCorrector faceMaskColorCorrector;
 
         /// <summary>
         /// The mesh overlay.
@@ -137,7 +147,6 @@ namespace FaceMaskExample
             coroutines.Clear ();
 
             Run ();
-            uploadImageButton.interactable = true;
         }
         #endif
 
@@ -147,6 +156,7 @@ namespace FaceMaskExample
 
             displayFaceRectsToggle.isOn = displayFaceRects;
             useDlibFaceDetecterToggle.isOn = useDlibFaceDetecter;
+            enableColorCorrectionToggle.isOn = enableColorCorrection;
             filterNonFrontalFacesToggle.isOn = filterNonFrontalFaces;
             displayDebugFacePointsToggle.isOn = displayDebugFacePoints;
 
@@ -181,8 +191,8 @@ namespace FaceMaskExample
             if (faceLandmarkDetector == null)
                 faceLandmarkDetector = new FaceLandmarkDetector (sp_human_face_68_dat_filepath);
 
+            faceMaskColorCorrector = faceMaskColorCorrector ?? new FaceMaskColorCorrector ();
             FrontalFaceChecker frontalFaceChecker = new FrontalFaceChecker (width, height);
-
 
             // detect faces.
             List<OpenCVForUnity.Rect> detectResult = new List<OpenCVForUnity.Rect> ();
@@ -217,7 +227,7 @@ namespace FaceMaskExample
                 }
                 
                 gray.Dispose ();
-            }
+            }               
             
             // detect face landmark points.
             OpenCVForUnityUtils.SetImage (faceLandmarkDetector, rgbaMat);
@@ -267,11 +277,20 @@ namespace FaceMaskExample
                 }
                 meshOverlay.UpdateObject (i, vertices, null, uv);
                     
+                if (enableColorCorrection) {                    
+                    faceMaskColorCorrector.CreateLUTTex (i);
+                    Texture2D LUTTex = faceMaskColorCorrector.UpdateLUTTex (i, rgbaMat, rgbaMat, landmarkPoints [face_nums [0]], landmarkPoints [face_nums [i]]);
+                    tm.sharedMaterial.SetTexture ("_LUTTex", LUTTex);
+                    tm.sharedMaterial.SetFloat ("_ColorCorrection", 1f);
+                } else {
+                    tm.sharedMaterial.SetFloat ("_ColorCorrection", 0f);
+                }
+
                 // filter non frontal faces.
                 if (filterNonFrontalFaces && frontalFaceChecker.GetFrontalFaceRate (landmarkPoints [i]) < frontalFaceRateLowerLimit) {
-                    tm.material.SetFloat ("_Fade", 1f);
+                    tm.sharedMaterial.SetFloat ("_Fade", 1f);
                 } else {
-                    tm.material.SetFloat ("_Fade", 0.3f);
+                    tm.sharedMaterial.SetFloat ("_Fade", 0.3f);
                 }
             }
             
@@ -310,6 +329,9 @@ namespace FaceMaskExample
         /// </summary>
         void OnDestroy ()
         {
+            if (faceMaskColorCorrector != null)
+                faceMaskColorCorrector.Dispose ();
+
             if (faceLandmarkDetector != null)
                 faceLandmarkDetector.Dispose ();
 
@@ -354,6 +376,21 @@ namespace FaceMaskExample
                 useDlibFaceDetecter = true;
             } else {
                 useDlibFaceDetecter = false;
+            }
+
+            if (imgTexture != null)
+                Run ();
+        }
+
+        /// <summary>
+        /// Raises the enable color correction toggle value changed event.
+        /// </summary>
+        public void OnEnableColorCorrectionToggleValueChanged ()
+        {
+            if (enableColorCorrectionToggle.isOn) {
+                enableColorCorrection = true;
+            } else {
+                enableColorCorrection = false;
             }
 
             if (imgTexture != null)

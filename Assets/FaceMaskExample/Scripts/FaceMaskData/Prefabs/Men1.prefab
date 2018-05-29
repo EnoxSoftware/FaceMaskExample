@@ -1,0 +1,130 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &145198
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 458588}
+  - 114: {fileID: 11428486}
+  m_Layer: 0
+  m_Name: Men1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &458588
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 145198}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+--- !u!114 &11428486
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 145198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cea3acc41ae7e1498ab5b898cf0043c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _image: {fileID: 2800000, guid: 15fcadce448f349488a1b74f026ce010, type: 3}
+  isDynamicMode: 0
+  _faceRect:
+    serializedVersion: 2
+    x: 78
+    y: 95
+    width: 151
+    height: 150
+  _landmarkPoints:
+  - {x: 84, y: 148}
+  - {x: 84, y: 167}
+  - {x: 86, y: 187}
+  - {x: 89, y: 206}
+  - {x: 96, y: 224}
+  - {x: 106, y: 240}
+  - {x: 119, y: 253}
+  - {x: 134, y: 264}
+  - {x: 151, y: 266}
+  - {x: 168, y: 264}
+  - {x: 184, y: 254}
+  - {x: 197, y: 241}
+  - {x: 207, y: 226}
+  - {x: 214, y: 209}
+  - {x: 218, y: 190}
+  - {x: 221, y: 170}
+  - {x: 221, y: 150}
+  - {x: 103, y: 113}
+  - {x: 109, y: 106}
+  - {x: 117, y: 103}
+  - {x: 130, y: 105}
+  - {x: 140, y: 113}
+  - {x: 167, y: 114}
+  - {x: 175, y: 107}
+  - {x: 188, y: 103}
+  - {x: 200, y: 108}
+  - {x: 207, y: 116}
+  - {x: 153, y: 133}
+  - {x: 153, y: 144}
+  - {x: 153, y: 156}
+  - {x: 155, y: 166}
+  - {x: 140, y: 178}
+  - {x: 147, y: 181}
+  - {x: 156, y: 180}
+  - {x: 164, y: 180}
+  - {x: 171, y: 178}
+  - {x: 113, y: 134}
+  - {x: 120, y: 127}
+  - {x: 129, y: 127}
+  - {x: 136, y: 134}
+  - {x: 128, y: 137}
+  - {x: 119, y: 137}
+  - {x: 169, y: 134}
+  - {x: 177, y: 126}
+  - {x: 188, y: 126}
+  - {x: 194, y: 134}
+  - {x: 188, y: 139}
+  - {x: 178, y: 138}
+  - {x: 124, y: 217}
+  - {x: 131, y: 203}
+  - {x: 143, y: 198}
+  - {x: 155, y: 195}
+  - {x: 171, y: 198}
+  - {x: 179, y: 205}
+  - {x: 184, y: 218}
+  - {x: 179, y: 226}
+  - {x: 167, y: 230}
+  - {x: 154, y: 230}
+  - {x: 139, y: 229}
+  - {x: 127, y: 226}
+  - {x: 128, y: 215}
+  - {x: 136, y: 204}
+  - {x: 154, y: 201}
+  - {x: 172, y: 204}
+  - {x: 179, y: 216}
+  - {x: 173, y: 222}
+  - {x: 156, y: 224}
+  - {x: 136, y: 222}
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 145198}
+  m_IsPrefabParent: 1

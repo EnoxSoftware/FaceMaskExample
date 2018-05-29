@@ -33,9 +33,13 @@ namespace FaceMaskExample
 
         public Material material
         {
-            get { return _material; }
+            get { return _meshRenderer.material; }
         }
-        protected Material _material;
+
+        public Material sharedMaterial
+        {
+            get { return _meshRenderer.sharedMaterial; }
+        }
 
         void Awake()
         {
@@ -46,7 +50,6 @@ namespace FaceMaskExample
             if (_meshRenderer.material == null)
                 throw new Exception("material does not exist.");
 
-            _material = _meshRenderer.material;
             _meshRenderer.sortingOrder = 32767;
         }
 
