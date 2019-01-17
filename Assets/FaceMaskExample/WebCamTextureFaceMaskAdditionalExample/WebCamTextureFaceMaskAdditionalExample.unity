@@ -3094,7 +3094,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interval: 1
   poolSize: 10
-  _baseObject: {fileID: 1138294731141240, guid: 8b9701cb9064eeb44b641983696a9e94,
+  _baseObject: {fileID: 1150371196015818, guid: 8b9701cb9064eeb44b641983696a9e94,
     type: 2}
 --- !u!114 &1362053830
 MonoBehaviour:
@@ -3104,7 +3104,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1362053823}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bafc15da02fe850489635791dda2bbdf, type: 3}
+  m_Script: {fileID: 11500000, guid: df35b0c19ca97734e87299a664cea35f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _requestedDeviceName: 
@@ -3162,8 +3162,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: FaceMaskExample.WebCamTextureToMatHelper+ErrorUnityEvent, Assembly-CSharp,
-      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    m_TypeName: OpenCVForUnity.UnityUtils.Helper.WebCamTextureToMatHelper+ErrorUnityEvent,
+      Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  avoidAndroidFrontCameraLowLightIssue: 0
 --- !u!114 &1362053831
 MonoBehaviour:
   m_ObjectHideFlags: 0

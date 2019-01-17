@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
-using OpenCVForUnity;
+using OpenCVForUnity.CoreModule;
+using OpenCVForUnity.ImgprocModule;
+using OpenCVForUnity.UnityUtils;
 
 namespace FaceMaskExample
 {
@@ -22,8 +24,8 @@ namespace FaceMaskExample
             for (int i = 0; i < baseArea.Length; i++) {
                 baseAreaPoints [i] = new Point (baseArea [i].x * width, height - baseArea [i].y * height);
             }
-            Imgproc.fillConvexPoly (baseAreaMaskMat, new MatOfPoint (baseAreaPoints), Scalar.all (255), Core.LINE_AA, 0);
-            //            Imgproc.erode(baseAreaMaskMat, baseAreaMaskMat, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size (width * 0.01, height * 0.01)), new Point(-1, -1), 1, Core.BORDER_CONSTANT, new Scalar(0, 0, 0, 255));
+            Imgproc.fillConvexPoly (baseAreaMaskMat, new MatOfPoint (baseAreaPoints), Scalar.all (255), Imgproc.LINE_AA, 0);
+//            Imgproc.erode(baseAreaMaskMat, baseAreaMaskMat, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size (width * 0.01, height * 0.01)), new Point(-1, -1), 1, Core.BORDER_CONSTANT, new Scalar(0, 0, 0, 255));
             Imgproc.blur (baseAreaMaskMat, baseAreaMaskMat, new Size (width * 0.03, height * 0.03));
         
         
@@ -34,9 +36,9 @@ namespace FaceMaskExample
                 for (int i = 0; i < exclusionArea.Length; i++) {
                     points [i] = new Point (exclusionArea [i].x * width, height - exclusionArea [i].y * height);
                 }
-                Imgproc.fillConvexPoly (exclusionAreaMaskMat, new MatOfPoint (points), Scalar.all (255), Core.LINE_AA, 0);
+                Imgproc.fillConvexPoly (exclusionAreaMaskMat, new MatOfPoint (points), Scalar.all (255), Imgproc.LINE_AA, 0);
             }
-            //            Imgproc.dilate(exclusionAreaMaskMat, exclusionAreaMaskMat, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size (width * 0.002, height * 0.002)), new Point(-1, -1), 1, Core.BORDER_CONSTANT, new Scalar(0));
+//          Imgproc.dilate(exclusionAreaMaskMat, exclusionAreaMaskMat, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size (width * 0.002, height * 0.002)), new Point(-1, -1), 1, Core.BORDER_CONSTANT, new Scalar(0));
             Imgproc.blur (exclusionAreaMaskMat, exclusionAreaMaskMat, new Size (width * 0.01, height * 0.01), new Point (-1, -1), Core.BORDER_CONSTANT);
 
 
@@ -44,7 +46,7 @@ namespace FaceMaskExample
             Core.bitwise_xor (baseAreaMaskMat, exclusionAreaMaskMat, maskMat);
 
             Texture2D texture = new Texture2D ((int)width, (int)height, TextureFormat.RGBA32, false);
-            OpenCVForUnity.Utils.matToTexture2D (maskMat, texture);
+            Utils.matToTexture2D (maskMat, texture);
 
             maskMat.Dispose ();
             baseAreaMaskMat.Dispose ();

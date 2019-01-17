@@ -1,15 +1,13 @@
-﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
-
-#if UNITY_5_3 || UNITY_5_3_OR_NEWER
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.SceneManagement;
-#endif
+using UnityEngine.UI;
+using OpenCVForUnity.CoreModule;
 
 namespace FaceMaskExample
 {
     /// <summary>
-    /// Face mask example.
+    /// FaceMask Example
     /// </summary>
     public class FaceMaskExample : MonoBehaviour
     {
@@ -23,8 +21,8 @@ namespace FaceMaskExample
         {
             exampleTitle.text = "FaceMask Example " + Application.version;
 
-            versionInfo.text = OpenCVForUnity.Core.NATIVE_LIBRARY_NAME + " " + OpenCVForUnity.Utils.getVersion () + " (" + OpenCVForUnity.Core.VERSION + ")";
-            versionInfo.text += " / " + "dlibfacelandmarkdetector" + " " + DlibFaceLandmarkDetector.Utils.getVersion ();
+            versionInfo.text = Core.NATIVE_LIBRARY_NAME + " " + OpenCVForUnity.UnityUtils.Utils.getVersion () + " (" + Core.VERSION + ")";
+            versionInfo.text += " / " + "dlibfacelandmarkdetector" + " " + DlibFaceLandmarkDetector.UnityUtils.Utils.getVersion ();
             versionInfo.text += " / UnityEditor " + Application.unityVersion;
             versionInfo.text += " / ";
 
@@ -45,9 +43,9 @@ namespace FaceMaskExample
             #elif UNITY_WEBGL
             versionInfo.text += "WebGL";
             #endif
-            versionInfo.text +=  " ";
+            versionInfo.text += " ";
             #if ENABLE_MONO
-            versionInfo.text +=  "Mono";
+            versionInfo.text += "Mono";
             #elif ENABLE_IL2CPP
             versionInfo.text += "IL2CPP";
             #elif ENABLE_DOTNET
@@ -71,47 +69,27 @@ namespace FaceMaskExample
 
         public void OnShowLicenseButtonClick ()
         {
-            #if UNITY_5_3 || UNITY_5_3_OR_NEWER
             SceneManager.LoadScene ("ShowLicense");
-            #else
-            Application.LoadLevel ("ShowLicense");
-            #endif
         }
 
         public void OnTexture2DFaceMaskExampleButtonClick ()
         {
-            #if UNITY_5_3 || UNITY_5_3_OR_NEWER
             SceneManager.LoadScene ("Texture2DFaceMaskExample");
-            #else
-            Application.LoadLevel ("Texture2DFaceMaskExample");
-            #endif
         }
-        
+
         public void OnVideoCaptureFaceMaskExampleButtonClick ()
         {
-            #if UNITY_5_3 || UNITY_5_3_OR_NEWER
             SceneManager.LoadScene ("VideoCaptureFaceMaskExample");
-            #else
-            Application.LoadLevel ("VideoCaptureFaceMaskExample");
-            #endif
         }
 
         public void OnWebCamTextureFaceMaskExampleButtonClick ()
         {
-            #if UNITY_5_3 || UNITY_5_3_OR_NEWER
             SceneManager.LoadScene ("WebCamTextureFaceMaskExample");
-            #else
-            Application.LoadLevel ("WebCamTextureFaceMaskExample");
-            #endif
         }
 
         public void OnWebCamTextureFaceMaskAdditionalExampleButtonClick ()
         {
-            #if UNITY_5_3 || UNITY_5_3_OR_NEWER
             SceneManager.LoadScene ("WebCamTextureFaceMaskAdditionalExample");
-            #else
-            Application.LoadLevel ("WebCamTextureFaceMaskAdditionalExample");
-            #endif
         }
     }
 }

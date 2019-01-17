@@ -2,16 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-using OpenCVForUnity;
+using OpenCVForUnity.CoreModule;
+using OpenCVForUnity.Calib3dModule;
 
 namespace FaceMaskExample
 {
     /// <summary>
     /// Frontal face checker. (Calculates from points of face landmark which was detected by using Dlib Face Landmark Detector)
-    /// v 1.0.0
+    /// v 1.0.1
     /// </summary>
-    public class FrontalFaceChecker : IDisposable
+    public class FrontalFaceChecker
     {
         float imageWidth;
         float imageHeight;
@@ -38,7 +38,7 @@ namespace FaceMaskExample
             imageHeight = height;
 
             for (int i = 0; i < landmarkPoints.Length; i++) {
-                landmarkPoints[i] = new Point (0, 0);
+                landmarkPoints [i] = new Point (0, 0);
             }
 
             objectPoints = new MatOfPoint3f (
@@ -49,7 +49,7 @@ namespace FaceMaskExample
                 new Point3 (26, 15, 83),//r mouse (Mouth breadth)
                 new Point3 (-79, 90, 0.0),//l ear (Bitragion breadth)
                 new Point3 (79, 90, 0.0)//r ear (Bitragion breadth)
-                );
+            );
             
             imagePoints = new MatOfPoint2f ();
 
@@ -78,25 +78,25 @@ namespace FaceMaskExample
 
         public void Dispose ()
         {
-            if(objectPoints != null && !objectPoints.IsDisposed)
+            if (objectPoints != null && !objectPoints.IsDisposed)
                 objectPoints.Dispose ();
 
-            if(imagePoints != null && !imagePoints.IsDisposed)
+            if (imagePoints != null && !imagePoints.IsDisposed)
                 imagePoints.Dispose ();
 
-            if(rvec != null && !rvec.IsDisposed)
+            if (rvec != null && !rvec.IsDisposed)
                 rvec.Dispose ();
 
-            if(tvec != null && !tvec.IsDisposed)
+            if (tvec != null && !tvec.IsDisposed)
                 tvec.Dispose ();
 
-            if(rotM != null && !rotM.IsDisposed)
+            if (rotM != null && !rotM.IsDisposed)
                 rotM.Dispose ();
 
-            if(camMatrix != null && !camMatrix.IsDisposed)
+            if (camMatrix != null && !camMatrix.IsDisposed)
                 camMatrix.Dispose ();
 
-            if(distCoeffs != null && !distCoeffs.IsDisposed)
+            if (distCoeffs != null && !distCoeffs.IsDisposed)
                 distCoeffs.Dispose ();
         }
 
@@ -160,15 +160,15 @@ namespace FaceMaskExample
                 float rotationY = (angles.y > 180) ? angles.y - 360 : angles.y;
                 float rotationZ = (tvec_z >= 0) ? (angles.z > 180) ? angles.z - 360 : angles.z : 180 - angles.z;
 
-                if(tvec_z < 0){
+                if (tvec_z < 0) {
                     rotationX = -rotationX;
                     rotationY = -rotationY;
                     rotationZ = -rotationZ;
                 }
 
-                return new Vector3(rotationX, rotationY, rotationZ);
+                return new Vector3 (rotationX, rotationY, rotationZ);
             } else {
-                return new Vector3(0, 0, 0);
+                return new Vector3 (0, 0, 0);
             }
         }
 
@@ -190,7 +190,7 @@ namespace FaceMaskExample
 
             return 1.0f - rate;
         }
-        
+
         /// <summary>
         /// Extract rotation quaternion from transform matrix.
         /// </summary>

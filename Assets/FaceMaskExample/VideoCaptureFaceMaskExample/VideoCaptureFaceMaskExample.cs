@@ -4,13 +4,15 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
-using DlibFaceLandmarkDetector;
-using OpenCVForUnity;
-using OpenCVForUnity.RectangleTrack;
-
-#if UNITY_5_3 || UNITY_5_3_OR_NEWER
 using UnityEngine.SceneManagement;
-#endif
+using DlibFaceLandmarkDetector;
+using OpenCVForUnity.RectangleTrack;
+using OpenCVForUnity.CoreModule;
+using OpenCVForUnity.ObjdetectModule;
+using OpenCVForUnity.VideoioModule;
+using OpenCVForUnity.ImgprocModule;
+using VideoCapture = OpenCVForUnity.VideoioModule.VideoCapture;
+using Rect = OpenCVForUnity.CoreModule.Rect;
 
 namespace FaceMaskExample
 {
@@ -221,7 +223,7 @@ namespace FaceMaskExample
         string couple_avi_filepath;
 
         #if UNITY_WEBGL && !UNITY_EDITOR
-        Stack<IEnumerator> coroutines = new Stack<IEnumerator> ();
+        IEnumerator getFilePath_Coroutine;
         #endif
 
         // Use this for initialization
@@ -230,13 +232,12 @@ namespace FaceMaskExample
             capture = new VideoCapture ();
 
             #if UNITY_WEBGL && !UNITY_EDITOR
-            var getFilePath_Coroutine = GetFilePath ();
-            coroutines.Push (getFilePath_Coroutine);
+            getFilePath_Coroutine = GetFilePath ();
             StartCoroutine (getFilePath_Coroutine);
             #else
-            haarcascade_frontalface_alt_xml_filepath = OpenCVForUnity.Utils.getFilePath ("haarcascade_frontalface_alt.xml");
-            sp_human_face_68_dat_filepath = DlibFaceLandmarkDetector.Utils.getFilePath ("sp_human_face_68.dat");
-            couple_avi_filepath = OpenCVForUnity.Utils.getFilePath ("dance.avi");
+            haarcascade_frontalface_alt_xml_filepath = OpenCVForUnity.UnityUtils.Utils.getFilePath ("haarcascade_frontalface_alt.xml");
+            sp_human_face_68_dat_filepath = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePath ("sp_human_face_68.dat");
+            couple_avi_filepath = OpenCVForUnity.UnityUtils.Utils.getFilePath ("dance.avi");
             Run ();
             #endif
         }
@@ -244,25 +245,22 @@ namespace FaceMaskExample
         #if UNITY_WEBGL && !UNITY_EDITOR
         private IEnumerator GetFilePath ()
         {
-            var getFilePathAsync_0_Coroutine = OpenCVForUnity.Utils.getFilePathAsync ("haarcascade_frontalface_alt.xml", (result) => {
+            var getFilePathAsync_0_Coroutine = OpenCVForUnity.UnityUtils.Utils.getFilePathAsync ("haarcascade_frontalface_alt.xml", (result) => {
                 haarcascade_frontalface_alt_xml_filepath = result;
             });
-            coroutines.Push (getFilePathAsync_0_Coroutine);
-            yield return StartCoroutine (getFilePathAsync_0_Coroutine);
+            yield return getFilePathAsync_0_Coroutine;
 
-            var getFilePathAsync_1_Coroutine = DlibFaceLandmarkDetector.Utils.getFilePathAsync ("sp_human_face_68.dat", (result) => {
+            var getFilePathAsync_1_Coroutine = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePathAsync ("sp_human_face_68.dat", (result) => {
                 sp_human_face_68_dat_filepath = result;
             });
-            coroutines.Push (getFilePathAsync_1_Coroutine);
-            yield return StartCoroutine (getFilePathAsync_1_Coroutine);
+            yield return getFilePathAsync_1_Coroutine;
 
-            var getFilePathAsync_2_Coroutine = OpenCVForUnity.Utils.getFilePathAsync ("dance.avi", (result) => {
+            var getFilePathAsync_2_Coroutine = OpenCVForUnity.UnityUtils.Utils.getFilePathAsync ("dance.avi", (result) => {
                 couple_avi_filepath = result;
             });
-            coroutines.Push (getFilePathAsync_2_Coroutine);
-            yield return StartCoroutine (getFilePathAsync_2_Coroutine);
+            yield return getFilePathAsync_2_Coroutine;
 
-            coroutines.Clear ();
+            getFilePath_Coroutine = null;
 
             Run ();
         }
@@ -272,13 +270,13 @@ namespace FaceMaskExample
         {
             meshOverlay = this.GetComponent<TrackedMeshOverlay> ();
 
-            shader_FadeID = Shader.PropertyToID("_Fade");
-            shader_ColorCorrectionID = Shader.PropertyToID("_ColorCorrection");
-            shader_LUTTexID = Shader.PropertyToID("_LUTTex");
+            shader_FadeID = Shader.PropertyToID ("_Fade");
+            shader_ColorCorrectionID = Shader.PropertyToID ("_ColorCorrection");
+            shader_LUTTexID = Shader.PropertyToID ("_LUTTex");
 
             rectangleTracker = new RectangleTracker ();
 
-            frontalFaceChecker = new FrontalFaceChecker((float)frameWidth, (float)frameHeight);
+            frontalFaceChecker = new FrontalFaceChecker ((float)frameWidth, (float)frameHeight);
 
             faceLandmarkDetector = new FaceLandmarkDetector (sp_human_face_68_dat_filepath);
 
@@ -299,7 +297,6 @@ namespace FaceMaskExample
 
 
             Debug.Log ("CAP_PROP_FORMAT: " + capture.get (Videoio.CAP_PROP_FORMAT));
-            Debug.Log ("CV_CAP_PROP_PREVIEW_FORMAT: " + capture.get (Videoio.CV_CAP_PROP_PREVIEW_FORMAT));
             Debug.Log ("CAP_PROP_POS_MSEC: " + capture.get (Videoio.CAP_PROP_POS_MSEC));
             Debug.Log ("CAP_PROP_POS_FRAMES: " + capture.get (Videoio.CAP_PROP_POS_FRAMES));
             Debug.Log ("CAP_PROP_POS_AVI_RATIO: " + capture.get (Videoio.CAP_PROP_POS_AVI_RATIO));
@@ -356,13 +353,13 @@ namespace FaceMaskExample
 
 
                 // detect faces.
-                List<OpenCVForUnity.Rect> detectResult = new List<OpenCVForUnity.Rect> ();
+                List<Rect> detectResult = new List<Rect> ();
                 if (useDlibFaceDetecter) {
                     OpenCVForUnityUtils.SetImage (faceLandmarkDetector, rgbMat);
                     List<UnityEngine.Rect> result = faceLandmarkDetector.Detect ();
 
                     foreach (var unityRect in result) {
-                        detectResult.Add (new OpenCVForUnity.Rect ((int)unityRect.x, (int)unityRect.y, (int)unityRect.width, (int)unityRect.height));
+                        detectResult.Add (new Rect ((int)unityRect.x, (int)unityRect.y, (int)unityRect.width, (int)unityRect.height));
                     }
                 } else {
                     // convert image to greyscale.
@@ -372,12 +369,12 @@ namespace FaceMaskExample
                     using (MatOfRect faces = new MatOfRect ()) {
                         Imgproc.equalizeHist (grayMat, equalizeHistMat);
 
-                        cascade.detectMultiScale (equalizeHistMat, faces, 1.1f, 2, 0 | Objdetect.CASCADE_SCALE_IMAGE, new OpenCVForUnity.Size (equalizeHistMat.cols () * 0.15, equalizeHistMat.cols () * 0.15), new Size ());
+                        cascade.detectMultiScale (equalizeHistMat, faces, 1.1f, 2, 0 | Objdetect.CASCADE_SCALE_IMAGE, new Size (equalizeHistMat.cols () * 0.15, equalizeHistMat.cols () * 0.15), new Size ());
 
                         detectResult = faces.toList ();
 
-                        // adjust to Dilb's result.
-                        foreach (OpenCVForUnity.Rect r in detectResult) {
+                        // corrects the deviation of a detection result between OpenCV and Dlib.
+                        foreach (Rect r in detectResult) {
                             r.y += (int)(r.height * 0.1f);
                         }
                     }
@@ -391,11 +388,11 @@ namespace FaceMaskExample
                 // create noise filter.
                 foreach (var openCVRect in trackedRects) {
                     if (openCVRect.state == TrackedState.NEW) {
-                        if (!lowPassFilterDict.ContainsKey(openCVRect.id))
-                            lowPassFilterDict.Add (openCVRect.id, new LowPassPointsFilter((int)faceLandmarkDetector.GetShapePredictorNumParts()));
-                        if (!opticalFlowFilterDict.ContainsKey(openCVRect.id))
-                            opticalFlowFilterDict.Add (openCVRect.id, new OFPointsFilter((int)faceLandmarkDetector.GetShapePredictorNumParts()));
-                    }else if (openCVRect.state == TrackedState.DELETED){
+                        if (!lowPassFilterDict.ContainsKey (openCVRect.id))
+                            lowPassFilterDict.Add (openCVRect.id, new LowPassPointsFilter ((int)faceLandmarkDetector.GetShapePredictorNumParts ()));
+                        if (!opticalFlowFilterDict.ContainsKey (openCVRect.id))
+                            opticalFlowFilterDict.Add (openCVRect.id, new OFPointsFilter ((int)faceLandmarkDetector.GetShapePredictorNumParts ()));
+                    } else if (openCVRect.state == TrackedState.DELETED) {
                         if (lowPassFilterDict.ContainsKey (openCVRect.id)) {
                             lowPassFilterDict [openCVRect.id].Dispose ();
                             lowPassFilterDict.Remove (openCVRect.id);
@@ -411,7 +408,7 @@ namespace FaceMaskExample
                 foreach (var openCVRect in trackedRects) {
                     if (openCVRect.state == TrackedState.NEW) {
                         faceMaskColorCorrector.CreateLUTTex (openCVRect.id);
-                    }else if (openCVRect.state == TrackedState.DELETED) {
+                    } else if (openCVRect.state == TrackedState.DELETED) {
                         faceMaskColorCorrector.DeleteLUTTex (openCVRect.id);
                     }
                 }
@@ -496,8 +493,8 @@ namespace FaceMaskExample
                     for (int i = 0; i < trackedRects.Count; i++) {
                         UnityEngine.Rect rect = new UnityEngine.Rect (trackedRects [i].x, trackedRects [i].y, trackedRects [i].width, trackedRects [i].height);
                         OpenCVForUnityUtils.DrawFaceRect (rgbMat, rect, new Scalar (255, 255, 0, 255), 2);
-                        //Imgproc.putText (rgbaMat, " " + frontalFaceChecker.GetFrontalFaceAngles (landmarkPoints [i]), new Point (rect.xMin, rect.yMin - 10), Core.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar (255, 255, 255, 255), 2, Imgproc.LINE_AA, false);
-                        //Imgproc.putText (rgbaMat, " " + frontalFaceChecker.GetFrontalFaceRate (landmarkPoints [i]), new Point (rect.xMin, rect.yMin - 10), Core.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar (255, 255, 255, 255), 2, Imgproc.LINE_AA, false);
+//                        Imgproc.putText (rgbMat, " " + frontalFaceChecker.GetFrontalFaceAngles (landmarkPoints [i]), new Point (rect.xMin, rect.yMin - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar (255, 255, 255, 255), 2, Imgproc.LINE_AA, false);
+//                        Imgproc.putText (rgbMat, " " + frontalFaceChecker.GetFrontalFaceRate (landmarkPoints [i]), new Point (rect.xMin, rect.yMin - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar (255, 255, 255, 255), 2, Imgproc.LINE_AA, false);
                     }
                 }
                 
@@ -532,12 +529,12 @@ namespace FaceMaskExample
                     Imgproc.warpAffine (faceMaskMat, rgbMat, trans, rgbMat.size (), Imgproc.INTER_LINEAR, Core.BORDER_TRANSPARENT, new Scalar (0));
 
                     if (displayFaceRects || displayDebugFacePointsToggle)
-                        OpenCVForUnity.Utils.texture2DToMat (faceMaskTexture, faceMaskMat);
+                        OpenCVForUnity.UnityUtils.Utils.texture2DToMat (faceMaskTexture, faceMaskMat);
                 }
                     
-//                Imgproc.putText (rgbMat, "W:" + rgbMat.width () + " H:" + rgbMat.height () + " SO:" + Screen.orientation, new Point (5, rgbMat.rows () - 10), Core.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar (255, 255, 255), 1, Imgproc.LINE_AA, false);
+//                Imgproc.putText (rgbMat, "W:" + rgbMat.width () + " H:" + rgbMat.height () + " SO:" + Screen.orientation, new Point (5, rgbMat.rows () - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar (255, 255, 255), 1, Imgproc.LINE_AA, false);
 
-                OpenCVForUnity.Utils.fastMatToTexture2D (rgbMat, texture);
+                OpenCVForUnity.UnityUtils.Utils.fastMatToTexture2D (rgbMat, texture);
             }
         }
 
@@ -557,23 +554,23 @@ namespace FaceMaskExample
             Vector3[] vertices = tm.meshFilter.mesh.vertices;
             if (vertices.Length == landmarkPoints.Count) {
                 for (int j = 0; j < vertices.Length; j++) {
-                    vertices [j].x = landmarkPoints[j].x / imageWidth - 0.5f;
-                    vertices [j].y = 0.5f - landmarkPoints[j].y / imageHeight;
+                    vertices [j].x = landmarkPoints [j].x / imageWidth - 0.5f;
+                    vertices [j].y = 0.5f - landmarkPoints [j].y / imageHeight;
                 }
             }
             Vector2[] uv = tm.meshFilter.mesh.uv;
             if (uv.Length == landmarkPointsInMaskImage.Count) {
                 for (int jj = 0; jj < uv.Length; jj++) {
-                    uv [jj].x = landmarkPointsInMaskImage[jj].x / maskImageWidth;
-                    uv [jj].y = (maskImageHeight - landmarkPointsInMaskImage[jj].y) / maskImageHeight;
+                    uv [jj].x = landmarkPointsInMaskImage [jj].x / maskImageWidth;
+                    uv [jj].y = (maskImageHeight - landmarkPointsInMaskImage [jj].y) / maskImageHeight;
                 }
             }
             meshOverlay.UpdateObject (tr.id, vertices, null, uv);
 
             if (tr.numFramesNotDetected > 3) {
                 tm.sharedMaterial.SetFloat (shader_FadeID, 1f);
-            }else if (tr.numFramesNotDetected > 0 && tr.numFramesNotDetected <= 3) {
-                tm.sharedMaterial.SetFloat (shader_FadeID, 0.3f + (0.7f/4f) * tr.numFramesNotDetected);
+            } else if (tr.numFramesNotDetected > 0 && tr.numFramesNotDetected <= 3) {
+                tm.sharedMaterial.SetFloat (shader_FadeID, 0.3f + (0.7f / 4f) * tr.numFramesNotDetected);
             } else {
                 tm.sharedMaterial.SetFloat (shader_FadeID, 0.3f);
             }
@@ -592,7 +589,7 @@ namespace FaceMaskExample
 
         private void CorrectFaceMaskColor (int id, Mat src, Mat dst, List<Vector2> src_landmarkPoints, List<Vector2> dst_landmarkPoints)
         {
-            Texture2D LUTTex = faceMaskColorCorrector.UpdateLUTTex(id, src, dst, src_landmarkPoints, dst_landmarkPoints);
+            Texture2D LUTTex = faceMaskColorCorrector.UpdateLUTTex (id, src, dst, src_landmarkPoints, dst_landmarkPoints);
             TrackedMesh tm = meshOverlay.GetObjectById (id);
             tm.sharedMaterial.SetTexture (shader_LUTTexID, LUTTex);
         }
@@ -631,9 +628,9 @@ namespace FaceMaskExample
                 frontalFaceChecker.Dispose ();
 
             #if UNITY_WEBGL && !UNITY_EDITOR
-            foreach (var coroutine in coroutines) {
-                StopCoroutine (coroutine);
-                ((IDisposable)coroutine).Dispose ();
+            if (getFilePath_Coroutine != null) {
+                StopCoroutine (getFilePath_Coroutine);
+                ((IDisposable)getFilePath_Coroutine).Dispose ();
             }
             #endif
         }
@@ -643,11 +640,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnBackButtonClick ()
         {
-            #if UNITY_5_3 || UNITY_5_3_OR_NEWER
             SceneManager.LoadScene ("FaceMaskExample");
-            #else
-            Application.LoadLevel ("FaceMaskExample");
-            #endif
         }
 
         /// <summary>
@@ -703,7 +696,7 @@ namespace FaceMaskExample
                 filterNonFrontalFaces = false;
             }
         }
-        
+
         /// <summary>
         /// Raises the display face rects toggle value changed event.
         /// </summary>
@@ -738,7 +731,7 @@ namespace FaceMaskExample
             if (faceMaskDatas.Count == 0)
                 return;
 
-            FaceMaskData maskData = faceMaskDatas[faceMaskDataIndex];
+            FaceMaskData maskData = faceMaskDatas [faceMaskDataIndex];
             faceMaskDataIndex = (faceMaskDataIndex < faceMaskDatas.Count - 1) ? faceMaskDataIndex + 1 : 0;
 
             if (maskData == null) {
@@ -758,20 +751,20 @@ namespace FaceMaskExample
 
             faceMaskTexture = maskData.image;
             faceMaskMat = new Mat (faceMaskTexture.height, faceMaskTexture.width, CvType.CV_8UC3);
-            OpenCVForUnity.Utils.texture2DToMat (faceMaskTexture, faceMaskMat);
+            OpenCVForUnity.UnityUtils.Utils.texture2DToMat (faceMaskTexture, faceMaskMat);
 
-            if(maskData.isDynamicMode){
+            if (maskData.isDynamicMode) {
                 faceRectInMask = DetectFace (faceMaskMat);
                 faceLandmarkPointsInMask = DetectFaceLandmarkPoints (faceMaskMat, faceRectInMask);
 
                 maskData.faceRect = faceRectInMask;
                 maskData.landmarkPoints = faceLandmarkPointsInMask;
-            }else{
+            } else {
                 faceRectInMask = maskData.faceRect;
                 faceLandmarkPointsInMask = maskData.landmarkPoints;
             }
 
-            if (faceRectInMask.width == 0 && faceRectInMask.height == 0){
+            if (faceRectInMask.width == 0 && faceRectInMask.height == 0) {
                 RemoveFaceMask ();
                 Debug.LogError ("A face could not be detected from the input image.");
             }
@@ -797,7 +790,7 @@ namespace FaceMaskExample
             }
             */
         }
-        
+
         /// <summary>
         /// Raises the remove face mask button click event.
         /// </summary>
@@ -817,7 +810,7 @@ namespace FaceMaskExample
             rectangleTracker.Reset ();
             meshOverlay.Reset ();
         }
-        
+
         private UnityEngine.Rect DetectFace (Mat mat)
         {
             if (useDlibFaceDetecter) {
@@ -834,12 +827,12 @@ namespace FaceMaskExample
                     Imgproc.cvtColor (mat, grayMat, Imgproc.COLOR_RGB2GRAY);
                     Imgproc.equalizeHist (grayMat, equalizeHistMat);
                     
-                    cascade.detectMultiScale (equalizeHistMat, faces, 1.1f, 2, 0 | Objdetect.CASCADE_SCALE_IMAGE, new OpenCVForUnity.Size (equalizeHistMat.cols () * 0.15, equalizeHistMat.cols () * 0.15), new Size ());
+                    cascade.detectMultiScale (equalizeHistMat, faces, 1.1f, 2, 0 | Objdetect.CASCADE_SCALE_IMAGE, new Size (equalizeHistMat.cols () * 0.15, equalizeHistMat.cols () * 0.15), new Size ());
 
-                    List<OpenCVForUnity.Rect> faceList = faces.toList ();
+                    List<Rect> faceList = faces.toList ();
                     if (faceList.Count >= 1) {
                         UnityEngine.Rect r = new UnityEngine.Rect (faceList [0].x, faceList [0].y, faceList [0].width, faceList [0].height);
-                        // adjust to Dilb's result.
+                        // corrects the deviation of a detection result between OpenCV and Dlib.
                         r.y += (int)(r.height * 0.1f);
                         return r;
                     }
@@ -847,7 +840,7 @@ namespace FaceMaskExample
             }
             return new UnityEngine.Rect ();
         }
-        
+
         private List<Vector2> DetectFaceLandmarkPoints (Mat mat, UnityEngine.Rect rect)
         {
             OpenCVForUnityUtils.SetImage (faceLandmarkDetector, mat);

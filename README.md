@@ -3,7 +3,12 @@ FaceMask Example
 
 Overview
 -----
-<https://www.assetstore.unity3d.com/#!/content/79999>
+[https://assetstore.unity.com/packages/templates/tutorials/facemask-example-79999](https://assetstore.unity.com/packages/templates/tutorials/facemask-example-79999?aid=1011l4ehR)
+
+Environment
+-----
+[OpenCVForUnity](https://assetstore.unity.com/packages/tools/integration/opencv-for-unity-21088?aid=1011l4ehR)  
+[DlibFaceLandmarkDetector](https://assetstore.unity.com/packages/tools/integration/dlib-facelandmark-detector-64314?aid=1011l4ehR)
 
 Demo Video
 -----

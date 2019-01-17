@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace FaceMaskExample
 {
-    [CustomEditor(typeof(FaceMaskData))]
+    [CustomEditor (typeof(FaceMaskData))]
     public class FaceMaskDataEditor : Editor
-    {       
+    {
         SerializedProperty image;
         SerializedProperty isDynamicMode;
         SerializedProperty enableColorCorrection;
@@ -16,25 +16,24 @@ namespace FaceMaskExample
         bool isDrag = false;
         int currentPointID = -1;
 
-        private void OnEnable()
+        private void OnEnable ()
         {
-            image = serializedObject.FindProperty("_image");
-            isDynamicMode = serializedObject.FindProperty("isDynamicMode");
-            enableColorCorrection = serializedObject.FindProperty("enableColorCorrection");
-            faceRect = serializedObject.FindProperty("_faceRect");
-            landmarkPoints = serializedObject.FindProperty("_landmarkPoints");
+            image = serializedObject.FindProperty ("_image");
+            isDynamicMode = serializedObject.FindProperty ("isDynamicMode");
+            enableColorCorrection = serializedObject.FindProperty ("enableColorCorrection");
+            faceRect = serializedObject.FindProperty ("_faceRect");
+            landmarkPoints = serializedObject.FindProperty ("_landmarkPoints");
         }
 
-        public override void OnInspectorGUI()
+        public override void OnInspectorGUI ()
         {
-            serializedObject.Update();
+            serializedObject.Update ();
 
             Texture2D tex = image.objectReferenceValue as Texture2D;
 
             // Draw image.
-            if (tex != null)
-            {
-                GUILayout.Box(GUIContent.none, GUILayout.Width(tex.width), GUILayout.Height(tex.height));
+            if (tex != null) {
+                GUILayout.Box (GUIContent.none, GUILayout.Width (tex.width), GUILayout.Height (tex.height));
                 Rect imageRect = GUILayoutUtility.GetLastRect ();
                 GUI.DrawTexture (imageRect, tex);
 
@@ -106,20 +105,21 @@ namespace FaceMaskExample
             }
 
             // Display input field.
-            EditorGUILayout.PropertyField(image);
-            EditorGUILayout.PropertyField(isDynamicMode);
-            EditorGUILayout.PropertyField(enableColorCorrection);
-            EditorGUILayout.PropertyField(faceRect);
-            EditorGUILayout.PropertyField(landmarkPoints, true);
+            EditorGUILayout.PropertyField (image);
+            EditorGUILayout.PropertyField (isDynamicMode);
+            EditorGUILayout.PropertyField (enableColorCorrection);
+            EditorGUILayout.PropertyField (faceRect);
+            EditorGUILayout.PropertyField (landmarkPoints, true);
 
-            serializedObject.ApplyModifiedProperties();
+            serializedObject.ApplyModifiedProperties ();
         }
 
         private void DrawFaceRect (Rect imageRect, Rect faceRect, Color color)
         {
-            faceRect.x += imageRect.x; faceRect.y += imageRect.y;
+            faceRect.x += imageRect.x;
+            faceRect.y += imageRect.y;
             Handles.color = color;
-            Handles.DrawSolidRectangleWithOutline(faceRect, new Color(0, 0, 0, 0), Color.white);
+            Handles.DrawSolidRectangleWithOutline (faceRect, new Color (0, 0, 0, 0), Color.white);
         }
 
         private void DrawFaceLandmark (Rect imageRect, SerializedProperty landmarkPoints, Color lineColor, Color pointColor)
@@ -129,49 +129,52 @@ namespace FaceMaskExample
                 Handles.color = lineColor;
 
                 for (int i = 1; i <= 16; ++i)
-                    DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i-1).vector2Value);
+                    DrawLine (imageRect, landmarkPoints.GetArrayElementAtIndex (i).vector2Value, landmarkPoints.GetArrayElementAtIndex (i - 1).vector2Value);
 
                 for (int i = 28; i <= 30; ++i)
-                    DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i-1).vector2Value);
+                    DrawLine (imageRect, landmarkPoints.GetArrayElementAtIndex (i).vector2Value, landmarkPoints.GetArrayElementAtIndex (i - 1).vector2Value);
 
                 for (int i = 18; i <= 21; ++i)
-                    DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i-1).vector2Value);
+                    DrawLine (imageRect, landmarkPoints.GetArrayElementAtIndex (i).vector2Value, landmarkPoints.GetArrayElementAtIndex (i - 1).vector2Value);
                 for (int i = 23; i <= 26; ++i)
-                    DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i-1).vector2Value);
+                    DrawLine (imageRect, landmarkPoints.GetArrayElementAtIndex (i).vector2Value, landmarkPoints.GetArrayElementAtIndex (i - 1).vector2Value);
                 for (int i = 31; i <= 35; ++i)
-                    DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i-1).vector2Value);
-                DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(30).vector2Value, landmarkPoints.GetArrayElementAtIndex(35).vector2Value);
+                    DrawLine (imageRect, landmarkPoints.GetArrayElementAtIndex (i).vector2Value, landmarkPoints.GetArrayElementAtIndex (i - 1).vector2Value);
+                DrawLine (imageRect, landmarkPoints.GetArrayElementAtIndex (30).vector2Value, landmarkPoints.GetArrayElementAtIndex (35).vector2Value);
 
                 for (int i = 37; i <= 41; ++i)
-                    DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i-1).vector2Value);
-                DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(36).vector2Value, landmarkPoints.GetArrayElementAtIndex(41).vector2Value);
+                    DrawLine (imageRect, landmarkPoints.GetArrayElementAtIndex (i).vector2Value, landmarkPoints.GetArrayElementAtIndex (i - 1).vector2Value);
+                DrawLine (imageRect, landmarkPoints.GetArrayElementAtIndex (36).vector2Value, landmarkPoints.GetArrayElementAtIndex (41).vector2Value);
 
                 for (int i = 43; i <= 47; ++i)
-                    DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i-1).vector2Value);
-                DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(42).vector2Value, landmarkPoints.GetArrayElementAtIndex(47).vector2Value);
+                    DrawLine (imageRect, landmarkPoints.GetArrayElementAtIndex (i).vector2Value, landmarkPoints.GetArrayElementAtIndex (i - 1).vector2Value);
+                DrawLine (imageRect, landmarkPoints.GetArrayElementAtIndex (42).vector2Value, landmarkPoints.GetArrayElementAtIndex (47).vector2Value);
 
                 for (int i = 49; i <= 59; ++i)
-                    DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i-1).vector2Value);
-                DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(48).vector2Value, landmarkPoints.GetArrayElementAtIndex(59).vector2Value);
+                    DrawLine (imageRect, landmarkPoints.GetArrayElementAtIndex (i).vector2Value, landmarkPoints.GetArrayElementAtIndex (i - 1).vector2Value);
+                DrawLine (imageRect, landmarkPoints.GetArrayElementAtIndex (48).vector2Value, landmarkPoints.GetArrayElementAtIndex (59).vector2Value);
 
                 for (int i = 61; i <= 67; ++i)
-                    DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i-1).vector2Value);
-                DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(60).vector2Value, landmarkPoints.GetArrayElementAtIndex(67).vector2Value);
+                    DrawLine (imageRect, landmarkPoints.GetArrayElementAtIndex (i).vector2Value, landmarkPoints.GetArrayElementAtIndex (i - 1).vector2Value);
+                DrawLine (imageRect, landmarkPoints.GetArrayElementAtIndex (60).vector2Value, landmarkPoints.GetArrayElementAtIndex (67).vector2Value);
 
                 // Draw Points.
                 Handles.color = pointColor;
                 for (int i = 0; i < landmarkPoints.arraySize; i++) {
-                    Vector2 pt = landmarkPoints.GetArrayElementAtIndex(i).vector2Value;
-                    pt.x += imageRect.x; pt.y += imageRect.y;
-                    Handles.DrawSolidDisc(pt, Vector3.forward, 2f);
+                    Vector2 pt = landmarkPoints.GetArrayElementAtIndex (i).vector2Value;
+                    pt.x += imageRect.x;
+                    pt.y += imageRect.y;
+                    Handles.DrawSolidDisc (pt, Vector3.forward, 2f);
                 }
             }
         }
 
         private void DrawLine (Rect imageRect, Vector2 pt1, Vector2 pt2)
         {
-            pt1.x += imageRect.x; pt1.y += imageRect.y;
-            pt2.x += imageRect.x; pt2.y += imageRect.y;
+            pt1.x += imageRect.x;
+            pt1.y += imageRect.y;
+            pt2.x += imageRect.x;
+            pt2.y += imageRect.y;
             Handles.DrawLine (pt1, pt2);
         }
 
@@ -179,9 +182,10 @@ namespace FaceMaskExample
         {
             if (landmarkPoints.isArray && landmarkPoints.arraySize == 68) {
                 for (int i = 0; i < landmarkPoints.arraySize; i++) {
-                    Vector2 pt = landmarkPoints.GetArrayElementAtIndex(i).vector2Value;
-                    pt.x += imageRect.x; pt.y += imageRect.y;
-                    if (rect.Contains(pt))
+                    Vector2 pt = landmarkPoints.GetArrayElementAtIndex (i).vector2Value;
+                    pt.x += imageRect.x;
+                    pt.y += imageRect.y;
+                    if (rect.Contains (pt))
                         return i;
                 }
 
