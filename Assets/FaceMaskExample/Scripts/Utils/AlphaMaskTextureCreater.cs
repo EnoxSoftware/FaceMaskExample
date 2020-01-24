@@ -45,7 +45,7 @@ namespace FaceMaskExample
             Mat maskMat = new Mat ((int)height, (int)width, CvType.CV_8UC4);
             Core.bitwise_xor (baseAreaMaskMat, exclusionAreaMaskMat, maskMat);
 
-            Texture2D texture = new Texture2D ((int)width, (int)height, TextureFormat.RGBA32, false);
+            Texture2D texture = new Texture2D ((int)width, (int)height, TextureFormat.RGB24, false);
             Utils.matToTexture2D (maskMat, texture);
 
             maskMat.Dispose ();

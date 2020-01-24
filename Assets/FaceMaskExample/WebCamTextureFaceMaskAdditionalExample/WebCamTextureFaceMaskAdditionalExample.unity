@@ -42,7 +42,7 @@ RenderSettings:
 --- !u!157 &4
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 9
+  serializedVersion: 11
   m_GIWorkflowMode: 1
   m_GISettings:
     serializedVersion: 2
@@ -54,7 +54,7 @@ LightmapSettings:
     m_EnableBakedLightmaps: 1
     m_EnableRealtimeLightmaps: 0
   m_LightmapEditorSettings:
-    serializedVersion: 8
+    serializedVersion: 9
     m_Resolution: 1
     m_BakeResolution: 50
     m_TextureWidth: 1024
@@ -89,7 +89,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaIndirect: 2
     m_PVRFilteringAtrousPositionSigmaAO: 1
   m_LightingDataAsset: {fileID: 0}
-  m_ShadowMaskMode: 2
+  m_UseShadowmask: 1
 --- !u!196 &5
 NavMeshSettings:
   serializedVersion: 2
@@ -168,6 +168,7 @@ MonoBehaviour:
   m_PreferredHeight: 35
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!114 &7472737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -391,6 +392,7 @@ MonoBehaviour:
   m_PreferredHeight: 35
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!114 &92513335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -755,6 +757,7 @@ MonoBehaviour:
   m_PreferredHeight: 35
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!114 &248221989
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1504,6 +1507,7 @@ MonoBehaviour:
   m_PreferredHeight: 35
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &481101603
 GameObject:
   m_ObjectHideFlags: 0
@@ -1999,6 +2003,7 @@ MonoBehaviour:
   m_PreferredHeight: 35
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!114 &776436422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2142,6 +2147,7 @@ MonoBehaviour:
   m_PreferredHeight: 35
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!114 &785277533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2256,6 +2262,7 @@ MonoBehaviour:
   m_PreferredHeight: 35
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!114 &908987034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2667,6 +2674,7 @@ MonoBehaviour:
   m_PreferredHeight: 35
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!224 &1049411561
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3094,7 +3102,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interval: 1
   poolSize: 10
-  _baseObject: {fileID: 1150371196015818, guid: 8b9701cb9064eeb44b641983696a9e94,
+  _baseObject: {fileID: 1615476950310458, guid: 8b9701cb9064eeb44b641983696a9e94,
     type: 2}
 --- !u!114 &1362053830
 MonoBehaviour:
@@ -3298,7 +3306,6 @@ GameObject:
   - component: {fileID: 1462179234}
   - component: {fileID: 1462179233}
   - component: {fileID: 1462179232}
-  - component: {fileID: 1462179231}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -3306,19 +3313,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1462179231
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 11400000, guid: 1ccccd5701fc6ee48964a3c728b8ab62,
-    type: 2}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1462179230}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1997211142, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ForceModuleActive: 0
 --- !u!114 &1462179232
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3501,6 +3495,7 @@ MonoBehaviour:
   m_PreferredHeight: 35
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!114 &1476431625
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3695,6 +3690,7 @@ MonoBehaviour:
   m_PreferredHeight: 35
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!114 &1587337937
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3858,6 +3854,7 @@ MonoBehaviour:
   m_PreferredHeight: 35
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!114 &1634296986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4102,6 +4099,7 @@ MonoBehaviour:
   m_PreferredHeight: 35
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1 &1789259777
 GameObject:
   m_ObjectHideFlags: 0
@@ -4257,7 +4255,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1871338440}
   - component: {fileID: 1871338439}
-  - component: {fileID: 1871338438}
   - component: {fileID: 1871338437}
   - component: {fileID: 1871338436}
   m_Layer: 0
@@ -4275,13 +4272,6 @@ AudioListener:
   m_GameObject: {fileID: 1871338435}
   m_Enabled: 1
 --- !u!124 &1871338437
-Behaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1871338435}
-  m_Enabled: 1
---- !u!92 &1871338438
 Behaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
@@ -4561,3 +4551,4 @@ MonoBehaviour:
   m_PreferredHeight: 35
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
+  m_LayoutPriority: 1

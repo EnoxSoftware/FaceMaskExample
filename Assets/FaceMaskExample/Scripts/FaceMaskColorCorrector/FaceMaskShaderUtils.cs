@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.UnityUtils;
+using OpenCVForUnity.UtilsModule;
 
 namespace FaceMaskExample
 {
@@ -58,17 +59,17 @@ namespace FaceMaskExample
             byte[] dst_mask_byte = null;
             if (src_mask != null) {
                 src_mask_byte = new byte[src_mask.total () * src_mask.channels ()];
-                Utils.copyFromMat<byte> (src_mask, src_mask_byte);
+                MatUtils.copyFromMat<byte> (src_mask, src_mask_byte);
             }
             if (dst_mask != null) {
                 dst_mask_byte = new byte[dst_mask.total () * dst_mask.channels ()];
-                Utils.copyFromMat<byte> (dst_mask, dst_mask_byte);
+                MatUtils.copyFromMat<byte> (dst_mask, dst_mask_byte);
             }
 
             byte[] src_byte = new byte[src.total () * src.channels ()];
-            Utils.copyFromMat<byte> (src, src_byte);
+            MatUtils.copyFromMat<byte> (src, src_byte);
             byte[] dst_byte = new byte[dst.total () * dst.channels ()];
-            Utils.copyFromMat<byte> (dst, dst_byte);
+            MatUtils.copyFromMat<byte> (dst, dst_byte);
 
             int pixel_i = 0;
             int channels = src.channels ();
