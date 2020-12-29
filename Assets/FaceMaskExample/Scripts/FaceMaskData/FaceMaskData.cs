@@ -1,13 +1,13 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class FaceMaskData : MonoBehaviour
 {
     [SerializeField]
     private Texture2D _image;
 
-    public Texture2D image {
+    public Texture2D image
+    {
         get { return this._image; }
         set { this._image = value; }
     }
@@ -15,25 +15,26 @@ public class FaceMaskData : MonoBehaviour
     /// <summary>
     /// Determines if to use dynamically detected points.
     /// </summary>
-    [TooltipAttribute ("Determines if to use dynamically detected points.")]
+    [TooltipAttribute("Determines if to use dynamically detected points.")]
     public bool isDynamicMode = true;
 
     /// <summary>
     /// Determines if to enable color correction.
     /// </summary>
-    [TooltipAttribute ("Determines if to enable color correction.")]
+    [TooltipAttribute("Determines if to enable color correction.")]
     public bool enableColorCorrection = true;
 
     [SerializeField]
-    private Rect _faceRect = new Rect (78, 95, 151, 150);
+    private Rect _faceRect = new Rect(78, 95, 151, 150);
 
-    public Rect faceRect {
+    public Rect faceRect
+    {
         get { return this._faceRect; }
         set { this._faceRect = value; }
     }
 
     [SerializeField]
-    private List<Vector2> _landmarkPoints = new List<Vector2> () {
+    private List<Vector2> _landmarkPoints = new List<Vector2>() {
         new Vector2 (84, 148),
         new Vector2 (84, 167),
         new Vector2 (86, 187),
@@ -104,7 +105,8 @@ public class FaceMaskData : MonoBehaviour
         new Vector2 (144, 218)
     };
 
-    public List<Vector2> landmarkPoints {
+    public List<Vector2> landmarkPoints
+    {
         get { return this._landmarkPoints; }
         set { this._landmarkPoints = value; }
     }

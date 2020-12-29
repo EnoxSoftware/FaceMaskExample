@@ -3,15 +3,17 @@
 --- !u!43 &4300000
 Mesh:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: DlibFaceLandmark68Mesh
-  serializedVersion: 8
+  serializedVersion: 9
   m_SubMeshes:
   - serializedVersion: 2
     firstByte: 0
     indexCount: 327
     topology: 0
+    baseVertex: 0
     firstVertex: 0
     vertexCount: 68
     localAABB:
@@ -29,10 +31,10 @@ Mesh:
   m_IsReadable: 1
   m_KeepVertices: 1
   m_KeepIndices: 1
+  m_IndexFormat: 0
   m_IndexBuffer: 000024000100010024002900010029001f00290028001f0028001d001f00280027001d0027001c001d0027001b001c00270015001b002600150027001400150026002500140026002500130014001200130025001200250024001100120024000000110024002400250029002500280029002500260028002600270028002d0010000f002e002d000f002e000f0023002f002e0023001d002f0023002a002f001d001c002a001d001b002a001c001b0016002a0016002b002a00160017002b0017002c002b00170018002c00180019002c002c0019002d0019001a002d002d001a0010002c002d002e002f002c002e002b002c002f002a002b002f00140017001500150017001600150016001b001d001e001f001d0023001e001e0020001f001e00210020001e00220021001e002300220001001f00020002001f00030023000f000e0023000e000d002100330032002000210032001f00200032001f00320031001f003100300003001f00300003003000040004003000050030003b00050005003b0006003b003a0006003a00070006003a003900070039000800070039000900080039003800090038000a000900380037000a0037000b000a00370036000b0036000c000b0036000d000c0023000d003600230036003500230035003400220023003400210022003400210034003300300031003c0030003c003b00310032003d0031003d003c003c0043003b003b0043003a00320033003d0033003e003d00430042003a00420039003a00330034003f0033003f003e00420041003800420038003900340035003f00350040003f004100400037004100370038003500360040004000360037003c003d0043003d003e0043003e00420043003e003f0041003e00410042003f0040004100
-  m_Skin: []
   m_VertexData:
-    m_CurrentChannels: 27
+    serializedVersion: 2
     m_VertexCount: 68
     m_Channels:
     - stream: 0
@@ -48,6 +50,10 @@ Mesh:
       format: 0
       dimension: 0
     - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
       offset: 24
       format: 0
       dimension: 2
@@ -55,6 +61,26 @@ Mesh:
       offset: 32
       format: 0
       dimension: 2
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
     - stream: 0
       offset: 0
       format: 0
@@ -127,4 +153,10 @@ Mesh:
   m_MeshUsageFlags: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
+  m_MeshMetrics[0]: 1
+  m_MeshMetrics[1]: 1
   m_MeshOptimized: 0
+  m_StreamData:
+    offset: 0
+    size: 0
+    path: 

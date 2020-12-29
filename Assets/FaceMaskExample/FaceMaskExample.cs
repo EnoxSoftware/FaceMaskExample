@@ -1,8 +1,7 @@
-﻿using System.Collections;
+﻿using OpenCVForUnity.CoreModule;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using OpenCVForUnity.CoreModule;
 
 namespace FaceMaskExample
 {
@@ -17,79 +16,79 @@ namespace FaceMaskExample
         static float verticalNormalizedPosition = 1f;
 
         // Use this for initialization
-        void Start ()
+        void Start()
         {
             exampleTitle.text = "FaceMask Example " + Application.version;
 
-            versionInfo.text = Core.NATIVE_LIBRARY_NAME + " " + OpenCVForUnity.UnityUtils.Utils.getVersion () + " (" + Core.VERSION + ")";
-            versionInfo.text += " / " + "dlibfacelandmarkdetector" + " " + DlibFaceLandmarkDetector.UnityUtils.Utils.getVersion ();
+            versionInfo.text = Core.NATIVE_LIBRARY_NAME + " " + OpenCVForUnity.UnityUtils.Utils.getVersion() + " (" + Core.VERSION + ")";
+            versionInfo.text += " / " + "dlibfacelandmarkdetector" + " " + DlibFaceLandmarkDetector.UnityUtils.Utils.getVersion();
             versionInfo.text += " / UnityEditor " + Application.unityVersion;
             versionInfo.text += " / ";
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             versionInfo.text += "Editor";
-            #elif UNITY_STANDALONE_WIN
+#elif UNITY_STANDALONE_WIN
             versionInfo.text += "Windows";
-            #elif UNITY_STANDALONE_OSX
+#elif UNITY_STANDALONE_OSX
             versionInfo.text += "Mac OSX";
-            #elif UNITY_STANDALONE_LINUX
+#elif UNITY_STANDALONE_LINUX
             versionInfo.text += "Linux";
-            #elif UNITY_ANDROID
+#elif UNITY_ANDROID
             versionInfo.text += "Android";
-            #elif UNITY_IOS
+#elif UNITY_IOS
             versionInfo.text += "iOS";
-            #elif UNITY_WSA
+#elif UNITY_WSA
             versionInfo.text += "WSA";
-            #elif UNITY_WEBGL
+#elif UNITY_WEBGL
             versionInfo.text += "WebGL";
-            #endif
+#endif
             versionInfo.text += " ";
-            #if ENABLE_MONO
+#if ENABLE_MONO
             versionInfo.text += "Mono";
-            #elif ENABLE_IL2CPP
+#elif ENABLE_IL2CPP
             versionInfo.text += "IL2CPP";
-            #elif ENABLE_DOTNET
+#elif ENABLE_DOTNET
             versionInfo.text += ".NET";
-            #endif
+#endif
 
             scrollRect.verticalNormalizedPosition = verticalNormalizedPosition;
         }
 
         // Update is called once per frame
-        void Update ()
+        void Update()
         {
 
         }
 
-        public void OnScrollRectValueChanged ()
+        public void OnScrollRectValueChanged()
         {
             verticalNormalizedPosition = scrollRect.verticalNormalizedPosition;
         }
 
 
-        public void OnShowLicenseButtonClick ()
+        public void OnShowLicenseButtonClick()
         {
-            SceneManager.LoadScene ("ShowLicense");
+            SceneManager.LoadScene("ShowLicense");
         }
 
-        public void OnTexture2DFaceMaskExampleButtonClick ()
+        public void OnTexture2DFaceMaskExampleButtonClick()
         {
-            SceneManager.LoadScene ("Texture2DFaceMaskExample");
+            SceneManager.LoadScene("Texture2DFaceMaskExample");
         }
 
-        public void OnVideoCaptureFaceMaskExampleButtonClick ()
+        public void OnVideoCaptureFaceMaskExampleButtonClick()
         {
-            SceneManager.LoadScene ("VideoCaptureFaceMaskExample");
+            SceneManager.LoadScene("VideoCaptureFaceMaskExample");
         }
 
-        public void OnWebCamTextureFaceMaskExampleButtonClick ()
+        public void OnWebCamTextureFaceMaskExampleButtonClick()
         {
-            SceneManager.LoadScene ("WebCamTextureFaceMaskExample");
+            SceneManager.LoadScene("WebCamTextureFaceMaskExample");
         }
 
-        public void OnWebCamTextureFaceMaskAdditionalExampleButtonClick ()
+        public void OnWebCamTextureFaceMaskAdditionalExampleButtonClick()
         {
-            SceneManager.LoadScene ("WebCamTextureFaceMaskAdditionalExample");
+            SceneManager.LoadScene("WebCamTextureFaceMaskAdditionalExample");
         }
     }
 }

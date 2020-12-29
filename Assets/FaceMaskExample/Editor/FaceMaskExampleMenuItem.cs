@@ -1,11 +1,8 @@
 ﻿#if UNITY_5 || UNITY_5_3_OR_NEWER
-using UnityEngine;
-using UnityEditor;
 using System;
 using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
 
 namespace FaceMaskExample
 {
@@ -14,23 +11,23 @@ namespace FaceMaskExample
         /// <summary>
         /// Create face mask tracked mesh prefab.
         /// </summary>
-        [MenuItem ("Tools/Face Mask Example/Create Face Mask Prefab")]
-        private static void CreateFaceMaskPrefab ()
+        [MenuItem("Tools/Face Mask Example/Create Face Mask Prefab")]
+        private static void CreateFaceMaskPrefab()
         {
             float width = 512f;
             float height = 512f;
             string basePath = "Assets/FaceMaskExample/FaceMaskPrefab/";
 
-            GameObject newObj = new GameObject ("FaceMaskTrackedMesh");
+            GameObject newObj = new GameObject("FaceMaskTrackedMesh");
 
             //Add MeshFilter Component.
-            MeshFilter meshFilter = newObj.AddComponent<MeshFilter> ();
+            MeshFilter meshFilter = newObj.AddComponent<MeshFilter>();
 
             // Create Mesh.
-            meshFilter.mesh = new Mesh ();
+            meshFilter.mesh = new Mesh();
             Mesh mesh = meshFilter.sharedMesh;
             mesh.name = "DlibFaceLandmark68Mesh";
-            
+
             // Mesh_vertices
             Vector3[] vertices = new Vector3[68] {
                 new Vector3 (117, 250),
@@ -116,13 +113,14 @@ namespace FaceMaskExample
                 new Vector3 (242, 383)
             };
 
-            Vector3[] vertices2 = (Vector3[])vertices.Clone ();
-            for (int j = 0; j < vertices2.Length; j++) {
-                vertices2 [j].x = (vertices2 [j].x - width / 2f) / width;
-                vertices2 [j].y = (height / 2f - vertices2 [j].y) / height;
+            Vector3[] vertices2 = (Vector3[])vertices.Clone();
+            for (int j = 0; j < vertices2.Length; j++)
+            {
+                vertices2[j].x = (vertices2[j].x - width / 2f) / width;
+                vertices2[j].y = (height / 2f - vertices2[j].y) / height;
             }
             mesh.vertices = vertices2;
-            
+
             // Mesh_triangles
             int[] triangles = new int[327] {
                 // Around the right eye 21
@@ -219,7 +217,7 @@ namespace FaceMaskExample
                 34, 35, 52,
                 33, 34, 52,
                 33, 52, 51,
-                
+
                 48, 49, 60,
                 48, 60, 59,
                 49, 50, 61,
@@ -250,25 +248,26 @@ namespace FaceMaskExample
                 63, 64, 65
             };
             mesh.triangles = triangles;
-            
+
             // Mesh_uv
             Vector2[] uv = new Vector2[68];
-            for (int j = 0; j < uv.Length; j++) {
-                uv [j].x = vertices [j].x / width;
-                uv [j].y = (height - vertices [j].y) / height;
+            for (int j = 0; j < uv.Length; j++)
+            {
+                uv[j].x = vertices[j].x / width;
+                uv[j].y = (height - vertices[j].y) / height;
             }
             mesh.uv = uv;
-            mesh.uv2 = (Vector2[])uv.Clone ();
+            mesh.uv2 = (Vector2[])uv.Clone();
 
-            mesh.RecalculateNormals ();
+            mesh.RecalculateNormals();
 
             // Add Collider Component.
-            MeshCollider meshCollider = newObj.AddComponent<MeshCollider> ();
-            meshCollider.sharedMesh = CreatePrimitiveQuadMesh ();
+            MeshCollider meshCollider = newObj.AddComponent<MeshCollider>();
+            meshCollider.sharedMesh = CreatePrimitiveQuadMesh();
 
             // Add Renderer Component.
-            MeshRenderer meshRenderer = newObj.AddComponent<MeshRenderer> ();
-            Material material = new Material (Shader.Find ("Hide/FaceMaskShader"));
+            MeshRenderer meshRenderer = newObj.AddComponent<MeshRenderer>();
+            Material material = new Material(Shader.Find("Hide/FaceMaskShader"));
 
             // Create alpha mask texture.
             Vector2[] facialContourUVPoints = new Vector2[] {
@@ -330,78 +329,99 @@ namespace FaceMaskExample
                 uv [67]
             };
 
-            Texture2D alphaMaskTexture = AlphaMaskTextureCreater.CreateAlphaMaskTexture (width, height, facialContourUVPoints, /*rightEyeContourUVPoints, leftEyeContourUVPoints,*/mouthContourUVPoints);
+            Texture2D alphaMaskTexture = AlphaMaskTextureCreater.CreateAlphaMaskTexture(width, height, facialContourUVPoints, /*rightEyeContourUVPoints, leftEyeContourUVPoints,*/mouthContourUVPoints);
             string alphaMaskTexturePath = basePath + "FaceMaskAlphaMask.png";
-            byte[] pngData = alphaMaskTexture.EncodeToPNG ();
+            byte[] pngData = alphaMaskTexture.EncodeToPNG();
 
-            if (CreateWithoutFolder (basePath)) {
-                File.WriteAllBytes (alphaMaskTexturePath, pngData);
-                AssetDatabase.ImportAsset (alphaMaskTexturePath, ImportAssetOptions.ForceUpdate);
-                AssetDatabase.SaveAssets ();
+            if (CreateWithoutFolder(basePath))
+            {
+                File.WriteAllBytes(alphaMaskTexturePath, pngData);
+                AssetDatabase.ImportAsset(alphaMaskTexturePath, ImportAssetOptions.ForceUpdate);
+                AssetDatabase.SaveAssets();
+
+                Debug.Log("Create asset \"" + basePath + "FaceMaskAlphaMask.png\"");
             }
 
-            TextureImporter importer = TextureImporter.GetAtPath (alphaMaskTexturePath) as TextureImporter;
+            TextureImporter importer = TextureImporter.GetAtPath(alphaMaskTexturePath) as TextureImporter;
             importer.textureType = TextureImporterType.Default;
             importer.mipmapEnabled = false;
             importer.wrapMode = TextureWrapMode.Clamp;
             importer.maxTextureSize = 1024;
-//            importer.textureFormat = TextureImporterFormat.RGBA16;
-            EditorUtility.SetDirty (importer);
-            AssetDatabase.ImportAsset (alphaMaskTexturePath, ImportAssetOptions.ForceUpdate);
-            AssetDatabase.SaveAssets ();
+            //importer.textureFormat = TextureImporterFormat.RGBA16;
+            EditorUtility.SetDirty(importer);
+            AssetDatabase.ImportAsset(alphaMaskTexturePath, ImportAssetOptions.ForceUpdate);
+            AssetDatabase.SaveAssets();
 
-            GameObject.DestroyImmediate (alphaMaskTexture);
-            alphaMaskTexture = AssetDatabase.LoadAssetAtPath (alphaMaskTexturePath, typeof(Texture2D)) as Texture2D;
-            material.SetTexture ("_MaskTex", alphaMaskTexture);
+            GameObject.DestroyImmediate(alphaMaskTexture);
+            alphaMaskTexture = AssetDatabase.LoadAssetAtPath(alphaMaskTexturePath, typeof(Texture2D)) as Texture2D;
+            material.SetTexture("_MaskTex", alphaMaskTexture);
             meshRenderer.material = material;
 
             // Add TracedMesh Compornent.
-            newObj.AddComponent<TrackedMesh> ();
+            newObj.AddComponent<TrackedMesh>();
 
             // Save FaceMask Assets.
-            if (CreateWithoutFolder (basePath)) {
-                AssetDatabase.CreateAsset (material, basePath + "FaceMaskMaterial.mat");
-                AssetDatabase.CreateAsset (mesh, basePath + "DlibFaceLandmark68Mesh.asset");
-                AssetDatabase.SaveAssets ();
+            if (CreateWithoutFolder(basePath))
+            {
+                AssetDatabase.CreateAsset(material, basePath + "FaceMaskMaterial.mat");
+                AssetDatabase.CreateAsset(mesh, basePath + "DlibFaceLandmark68Mesh.asset");
+                AssetDatabase.SaveAssets();
 
-                UnityEngine.Object prefab = AssetDatabase.LoadAssetAtPath (basePath + "FaceMaskTrackedMesh.prefab", typeof(UnityEngine.Object));
-                if (prefab == null) {
-                    UnityEditor.PrefabUtility.CreatePrefab (basePath + "FaceMaskTrackedMesh.prefab", newObj);
-                } else {
-                    UnityEditor.PrefabUtility.ReplacePrefab (newObj, prefab);
+                string prefab_path = basePath + "FaceMaskTrackedMesh.prefab";
+
+#if UNITY_2018_3_OR_NEWER
+                PrefabUtility.SaveAsPrefabAsset(newObj, prefab_path);
+#else
+                UnityEngine.Object prefab = AssetDatabase.LoadAssetAtPath(prefab_path, typeof(UnityEngine.Object));
+                if (prefab == null)
+                {
+                    PrefabUtility.CreatePrefab(prefab_path, newObj);
                 }
-                AssetDatabase.SaveAssets ();
+                else
+                {
+                    PrefabUtility.ReplacePrefab(newObj, prefab);
+                }
+#endif
+
+                AssetDatabase.SaveAssets();
+
+                Debug.Log("Create asset \"" + basePath + "FaceMaskMaterial.mat\"");
+                Debug.Log("Create asset \"" + basePath + "DlibFaceLandmark68Mesh.asset\"");
+                Debug.Log("Create asset \"" + basePath + "FaceMaskTrackedMesh.prefab\"");
             }
 
-            GameObject.DestroyImmediate (newObj);
+            GameObject.DestroyImmediate(newObj);
         }
 
-        private static Mesh CreatePrimitiveQuadMesh ()
+        private static Mesh CreatePrimitiveQuadMesh()
         {
-            GameObject gameObject = GameObject.CreatePrimitive (PrimitiveType.Quad);
-            Mesh mesh = gameObject.GetComponent<MeshFilter> ().sharedMesh;
-            GameObject.DestroyImmediate (gameObject);
+            GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            Mesh mesh = gameObject.GetComponent<MeshFilter>().sharedMesh;
+            GameObject.DestroyImmediate(gameObject);
 
             return mesh;
         }
 
-        private static bool CreateWithoutFolder (string filename)
+        private static bool CreateWithoutFolder(string filename)
         {
-            string directory = Path.GetDirectoryName (filename);
+            string directory = Path.GetDirectoryName(filename);
 
-            if (Directory.Exists (directory + "/") == true)
+            if (Directory.Exists(directory + "/") == true)
                 return true;
 
-            string[] values = directory.Split (new char[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] values = directory.Split(new char[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
             string checkFolder = string.Empty;
-            foreach (var folder in values) {
+            foreach (var folder in values)
+            {
                 string baseFolder = checkFolder;
-                if (!string.IsNullOrEmpty (checkFolder)) {
-                    baseFolder = Path.GetDirectoryName (checkFolder);
+                if (!string.IsNullOrEmpty(checkFolder))
+                {
+                    baseFolder = Path.GetDirectoryName(checkFolder);
                 }
                 checkFolder += folder;
-                if (System.IO.Directory.Exists (checkFolder + "/") != true) {
-                    UnityEditor.AssetDatabase.CreateFolder (baseFolder, folder);
+                if (Directory.Exists(checkFolder + "/") != true)
+                {
+                    AssetDatabase.CreateFolder(baseFolder, folder);
                 }
                 checkFolder += "/";
             }
