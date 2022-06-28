@@ -1,4 +1,4 @@
-﻿using OpenCVForUnity.Calib3dModule;
+using OpenCVForUnity.Calib3dModule;
 using OpenCVForUnity.CoreModule;
 using System;
 using System.Collections.Generic;

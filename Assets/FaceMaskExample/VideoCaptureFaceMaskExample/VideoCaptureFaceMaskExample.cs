@@ -1,4 +1,4 @@
-﻿using DlibFaceLandmarkDetector;
+using DlibFaceLandmarkDetector;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.ObjdetectModule;
@@ -268,19 +268,19 @@ namespace FaceMaskExample
             opticalFlowFilterDict = new Dictionary<int, OFPointsFilter>();
 
             faceMaskColorCorrector = new FaceMaskColorCorrector();
-            
+
             if (string.IsNullOrEmpty(sourceToMatHelper.requestedVideoFilePath))
                 sourceToMatHelper.requestedVideoFilePath = VIDEO_FILENAME;
             sourceToMatHelper.outputColorFormat = VideoCaptureToMatHelper.ColorFormat.RGB;
             sourceToMatHelper.Initialize();
-            
+
             displayFaceRectsToggle.isOn = displayFaceRects;
             useDlibFaceDetecterToggle.isOn = useDlibFaceDetecter;
             enableNoiseFilterToggle.isOn = enableNoiseFilter;
             enableColorCorrectionToggle.isOn = enableColorCorrection;
             filterNonFrontalFacesToggle.isOn = filterNonFrontalFaces;
             displayDebugFacePointsToggle.isOn = displayDebugFacePoints;
-            
+
         }
 
         /// <summary>
@@ -321,7 +321,7 @@ namespace FaceMaskExample
             }
 
             gameObject.GetComponent<Renderer>().material.mainTexture = texture;
-            
+
             grayMat = new Mat(rgbMat.rows(), rgbMat.cols(), CvType.CV_8UC1);
             cascade = new CascadeClassifier(haarcascade_frontalface_alt_xml_filepath);
             //if (cascade.empty())
@@ -334,7 +334,7 @@ namespace FaceMaskExample
             meshOverlay.UpdateOverlayTransform(gameObject.transform);
 
             OnChangeFaceMaskButtonClick();
-            
+
         }
 
         /// <summary>
@@ -391,9 +391,9 @@ namespace FaceMaskExample
 
             if (sourceToMatHelper.IsPlaying() && sourceToMatHelper.DidUpdateThisFrame())
             {
-  
+
                 Mat rgbMat = sourceToMatHelper.GetMat();
-                
+
                 // detect faces.
                 List<Rect> detectResult = new List<Rect>();
                 if (useDlibFaceDetecter)
@@ -618,7 +618,7 @@ namespace FaceMaskExample
                 }
 
                 //Imgproc.putText (rgbMat, "W:" + rgbMat.width () + " H:" + rgbMat.height () + " SO:" + Screen.orientation, new Point (5, rgbMat.rows () - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar (255, 255, 255, 255), 1, Imgproc.LINE_AA, false);
-                
+
                 OpenCVForUnity.UnityUtils.Utils.fastMatToTexture2D(rgbMat, texture);
             }
         }
@@ -635,6 +635,8 @@ namespace FaceMaskExample
                 maskImageHeight = imageHeight;
 
             TrackedMesh tm = meshOverlay.GetObjectById(tr.id);
+
+            if (tm == null) return;
 
             Vector3[] vertices = tm.meshFilter.mesh.vertices;
             if (vertices.Length == landmarkPoints.Count)
@@ -689,6 +691,9 @@ namespace FaceMaskExample
         {
             Texture2D LUTTex = faceMaskColorCorrector.UpdateLUTTex(id, src, dst, src_landmarkPoints, dst_landmarkPoints);
             TrackedMesh tm = meshOverlay.GetObjectById(id);
+
+            if (tm == null) return;
+
             tm.sharedMaterial.SetTexture(shader_LUTTexID, LUTTex);
         }
 

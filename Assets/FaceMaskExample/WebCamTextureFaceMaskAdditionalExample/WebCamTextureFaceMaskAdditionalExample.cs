@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -660,6 +660,8 @@ namespace FaceMaskExample
 
             TrackedMesh tm = meshOverlay.GetObjectById(tr.id);
 
+            if (tm == null) return;
+
             Vector3[] vertices = tm.meshFilter.mesh.vertices;
             if (vertices.Length == landmarkPoints.Count)
             {
@@ -713,6 +715,9 @@ namespace FaceMaskExample
         {
             Texture2D LUTTex = faceMaskColorCorrector.UpdateLUTTex(id, src, dst, src_landmarkPoints, dst_landmarkPoints);
             TrackedMesh tm = meshOverlay.GetObjectById(id);
+
+            if (tm == null) return;
+
             tm.sharedMaterial.SetTexture(shader_LUTTexID, LUTTex);
         }
 
