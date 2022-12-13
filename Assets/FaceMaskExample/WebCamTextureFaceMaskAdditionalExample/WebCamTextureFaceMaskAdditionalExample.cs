@@ -240,8 +240,8 @@ namespace FaceMaskExample
             getFilePath_Coroutine = GetFilePath ();
             StartCoroutine (getFilePath_Coroutine);
 #else
-            haarcascade_frontalface_alt_xml_filepath = OpenCVForUnity.UnityUtils.Utils.getFilePath("haarcascade_frontalface_alt.xml");
-            sp_human_face_68_dat_filepath = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePath("sp_human_face_68.dat");
+            haarcascade_frontalface_alt_xml_filepath = OpenCVForUnity.UnityUtils.Utils.getFilePath("DlibFaceLandmarkDetector/haarcascade_frontalface_alt.xml");
+            sp_human_face_68_dat_filepath = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePath("DlibFaceLandmarkDetector/sp_human_face_68.dat");
             Run();
 #endif
         }
@@ -249,12 +249,12 @@ namespace FaceMaskExample
 #if UNITY_WEBGL
         private IEnumerator GetFilePath ()
         {
-            var getFilePathAsync_0_Coroutine = OpenCVForUnity.UnityUtils.Utils.getFilePathAsync ("haarcascade_frontalface_alt.xml", (result) => {
+            var getFilePathAsync_0_Coroutine = OpenCVForUnity.UnityUtils.Utils.getFilePathAsync ("DlibFaceLandmarkDetector/haarcascade_frontalface_alt.xml", (result) => {
                 haarcascade_frontalface_alt_xml_filepath = result;
             });
             yield return getFilePathAsync_0_Coroutine;
 
-            var getFilePathAsync_1_Coroutine = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePathAsync ("sp_human_face_68.dat", (result) => {
+            var getFilePathAsync_1_Coroutine = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePathAsync ("DlibFaceLandmarkDetector/sp_human_face_68.dat", (result) => {
                 sp_human_face_68_dat_filepath = result;
             });
             yield return getFilePathAsync_1_Coroutine;
@@ -353,7 +353,7 @@ namespace FaceMaskExample
             cascade = new CascadeClassifier(haarcascade_frontalface_alt_xml_filepath);
             //if (cascade.empty())
             //{
-            //    Debug.LogError("cascade file is not loaded.Please copy from “FaceTrackerExample/StreamingAssets/” to “Assets/StreamingAssets/” folder. ");
+            //    Debug.LogError("cascade file is not loaded. Please copy from “DlibFaceLandmarkDetector/StreamingAssets/DlibFaceLandmarkDetector/” to “Assets/StreamingAssets/DlibFaceLandmarkDetector/” folder. ");
             //}
 
             frontalFaceChecker = new FrontalFaceChecker(width, height);
