@@ -18,10 +18,8 @@ Demo
 -----
 - WebGL
 <https://enoxsoftware.github.io/FaceMaskExample/webgl_example/index.html>
-- WebGL(using sp_human_face_68_for_mobile.dat)
-<https://enoxsoftware.github.io/FaceMaskExample/webgl_example_for_mobile/index.html>
 - Android
-[FaceMaskExample.apk](/FaceMaskExample.apk)
+<https://github.com/EnoxSoftware/FaceMaskExample/releases>
 
 Manual
 -----
