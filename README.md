@@ -16,10 +16,8 @@ Demo Video
 
 Demo
 -----
-- WebGL
-<https://enoxsoftware.github.io/FaceMaskExample/webgl_example/index.html>
-- Android
-<https://github.com/EnoxSoftware/FaceMaskExample/releases>
+- WebGL (simd) <https://enoxsoftware.github.io/FaceMaskExample/webgl_example/index.html>
+- Android <https://github.com/EnoxSoftware/FaceMaskExample/releases>
 
 Manual
 -----
