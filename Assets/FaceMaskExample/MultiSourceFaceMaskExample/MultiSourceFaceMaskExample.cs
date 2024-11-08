@@ -3,10 +3,11 @@ using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.ObjdetectModule;
 using OpenCVForUnity.RectangleTrack;
+using OpenCVForUnity.UnityUtils;
 using OpenCVForUnity.UnityUtils.Helper;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -15,11 +16,30 @@ using Rect = OpenCVForUnity.CoreModule.Rect;
 namespace FaceMaskExample
 {
     /// <summary>
-    /// WebCamTexture FaceMask Example
+    /// MultiSource FaceMask Example
     /// </summary>
-    [RequireComponent(typeof(WebCamTextureToMatHelper), typeof(TrackedMeshOverlay))]
-    public class WebCamTextureFaceMaskExample : MonoBehaviour
+    [RequireComponent(typeof(MultiSource2MatHelper), typeof(TrackedMeshOverlay))]
+    public class MultiSourceFaceMaskExample : MonoBehaviour
     {
+        [HeaderAttribute("Additional FaceMask Option")]
+
+        /// <summary>
+        /// Determines if make both eyes transparent.
+        /// </summary>
+        public bool makeBothEyesTransparent = true;
+
+        /// <summary>
+        /// Determines if make the mouth transparent.
+        /// </summary>
+        public bool makeMouthTransparent = true;
+
+        /// <summary>
+        /// Determines if extend the forehead.
+        /// </summary>
+        public bool extendForehead = true;
+
+        [Space(15)]
+
         [HeaderAttribute("FaceMaskData")]
 
         /// <summary>
@@ -116,9 +136,9 @@ namespace FaceMaskExample
         RectangleTracker rectangleTracker;
 
         /// <summary>
-        /// The web cam texture to mat helper.
+        /// The multi source to mat helper.
         /// </summary>
-        WebCamTextureToMatHelper webCamTextureToMatHelper;
+        MultiSource2MatHelper multiSource2MatHelper;
 
         /// <summary>
         /// The face landmark detector.
@@ -205,51 +225,53 @@ namespace FaceMaskExample
         /// </summary>
         FpsMonitor fpsMonitor;
 
-#if UNITY_WEBGL
-        IEnumerator getFilePath_Coroutine;
-#endif
+        /// <summary>
+        /// The CancellationTokenSource.
+        /// </summary>
+        CancellationTokenSource cts = new CancellationTokenSource();
 
         // Use this for initialization
-        void Start()
+        async void Start()
         {
             fpsMonitor = GetComponent<FpsMonitor>();
 
-            webCamTextureToMatHelper = gameObject.GetComponent<WebCamTextureToMatHelper>();
+            multiSource2MatHelper = gameObject.GetComponent<MultiSource2MatHelper>();
+            multiSource2MatHelper.outputColorFormat = Source2MatHelperColorFormat.RGBA;
 
-#if UNITY_WEBGL
-            getFilePath_Coroutine = GetFilePath();
-            StartCoroutine(getFilePath_Coroutine);
-#else
-            haarcascade_frontalface_alt_xml_filepath = OpenCVForUnity.UnityUtils.Utils.getFilePath("DlibFaceLandmarkDetector/haarcascade_frontalface_alt.xml");
-            sp_human_face_68_dat_filepath = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePath("DlibFaceLandmarkDetector/sp_human_face_68.dat");
-            Run();
-#endif
-        }
+            // Asynchronously retrieves the readable file path from the StreamingAssets directory.
+            if (fpsMonitor != null)
+                fpsMonitor.consoleText = "Preparing file access...";
 
-#if UNITY_WEBGL
-        private IEnumerator GetFilePath()
-        {
-            var getFilePathAsync_0_Coroutine = OpenCVForUnity.UnityUtils.Utils.getFilePathAsync("DlibFaceLandmarkDetector/haarcascade_frontalface_alt.xml", (result) =>
-            {
-                haarcascade_frontalface_alt_xml_filepath = result;
-            });
-            yield return getFilePathAsync_0_Coroutine;
+            haarcascade_frontalface_alt_xml_filepath = await Utils.getFilePathAsyncTask("DlibFaceLandmarkDetector/haarcascade_frontalface_alt.xml", cancellationToken: cts.Token);
+            sp_human_face_68_dat_filepath = await Utils.getFilePathAsyncTask("DlibFaceLandmarkDetector/sp_human_face_68.dat", cancellationToken: cts.Token);
 
-            var getFilePathAsync_1_Coroutine = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePathAsync("DlibFaceLandmarkDetector/sp_human_face_68.dat", (result) =>
-            {
-                sp_human_face_68_dat_filepath = result;
-            });
-            yield return getFilePathAsync_1_Coroutine;
-
-            getFilePath_Coroutine = null;
+            if (fpsMonitor != null)
+                fpsMonitor.consoleText = "";
 
             Run();
         }
-#endif
 
         private void Run()
         {
             meshOverlay = this.GetComponent<TrackedMeshOverlay>();
+
+            // Customize face mask.
+            GameObject newBaseObject = Instantiate(meshOverlay.baseObject);
+            newBaseObject.name = "CustomFaceMaskTrackedMesh";
+            TrackedMesh tm = newBaseObject.GetComponent<TrackedMesh>();
+
+            if (extendForehead)
+            {
+                ExtendForehead(tm.meshFilter.mesh);
+            }
+
+            Texture alphaMask = tm.material.GetTexture("_MaskTex");
+            Vector2[] uv = tm.meshFilter.sharedMesh.uv2;
+            Texture2D newAlphaMask = CreateFaceMaskAlphaMaskTexture(alphaMask.width, alphaMask.height, uv, makeBothEyesTransparent, makeMouthTransparent);
+            tm.material.SetTexture("_MaskTex", newAlphaMask);
+
+            meshOverlay.baseObject = newBaseObject;
+
 
             shader_FadeID = Shader.PropertyToID("_Fade");
             shader_ColorCorrectionID = Shader.PropertyToID("_ColorCorrection");
@@ -264,42 +286,37 @@ namespace FaceMaskExample
 
             faceMaskColorCorrector = new FaceMaskColorCorrector();
 
-            webCamTextureToMatHelper.Initialize();
-
             displayFaceRectsToggle.isOn = displayFaceRects;
             useDlibFaceDetecterToggle.isOn = useDlibFaceDetecter;
             enableNoiseFilterToggle.isOn = enableNoiseFilter;
             enableColorCorrectionToggle.isOn = enableColorCorrection;
             filterNonFrontalFacesToggle.isOn = filterNonFrontalFaces;
             displayDebugFacePointsToggle.isOn = displayDebugFacePoints;
+
+            multiSource2MatHelper.Initialize();
         }
 
         /// <summary>
-        /// Raises the web cam texture to mat helper initialized event.
+        /// Raises the source to mat helper initialized event.
         /// </summary>
-        public void OnWebCamTextureToMatHelperInitialized()
+        public void OnSourceToMatHelperInitialized()
         {
-            Debug.Log("OnWebCamTextureToMatHelperInitialized");
+            Debug.Log("OnSourceToMatHelperInitialized");
 
-            Mat webCamTextureMat = webCamTextureToMatHelper.GetMat();
+            Mat rgbaMat = multiSource2MatHelper.GetMat();
 
-            texture = new Texture2D(webCamTextureMat.cols(), webCamTextureMat.rows(), TextureFormat.RGBA32, false);
+            texture = new Texture2D(rgbaMat.cols(), rgbaMat.rows(), TextureFormat.RGBA32, false);
 
+            // Set the Texture2D as the main texture of the Renderer component attached to the game object
+            gameObject.GetComponent<Renderer>().material.mainTexture = texture;
 
-            gameObject.transform.localScale = new Vector3(webCamTextureMat.cols(), webCamTextureMat.rows(), 1);
+            // Adjust the scale of the game object to match the dimensions of the texture
+            gameObject.transform.localScale = new Vector3(rgbaMat.cols(), rgbaMat.rows(), 1);
             Debug.Log("Screen.width " + Screen.width + " Screen.height " + Screen.height + " Screen.orientation " + Screen.orientation);
 
-            if (fpsMonitor != null)
-            {
-                fpsMonitor.Add("width", webCamTextureMat.width().ToString());
-                fpsMonitor.Add("height", webCamTextureMat.height().ToString());
-                fpsMonitor.Add("orientation", Screen.orientation.ToString());
-            }
-
-
+            // Adjust the orthographic size of the main Camera to fit the aspect ratio of the image
             float width = gameObject.transform.localScale.x;
             float height = gameObject.transform.localScale.y;
-
             float widthScale = (float)Screen.width / width;
             float heightScale = (float)Screen.height / height;
             if (widthScale < heightScale)
@@ -311,9 +328,15 @@ namespace FaceMaskExample
                 Camera.main.orthographicSize = height / 2;
             }
 
-            gameObject.GetComponent<Renderer>().material.mainTexture = texture;
 
-            grayMat = new Mat(webCamTextureMat.rows(), webCamTextureMat.cols(), CvType.CV_8UC1);
+            if (fpsMonitor != null)
+            {
+                fpsMonitor.Add("width", rgbaMat.width().ToString());
+                fpsMonitor.Add("height", rgbaMat.height().ToString());
+                fpsMonitor.Add("orientation", Screen.orientation.ToString());
+            }
+
+            grayMat = new Mat(rgbaMat.rows(), rgbaMat.cols(), CvType.CV_8UC1);
             cascade = new CascadeClassifier(haarcascade_frontalface_alt_xml_filepath);
             //if (cascade.empty())
             //{
@@ -328,11 +351,11 @@ namespace FaceMaskExample
         }
 
         /// <summary>
-        /// Raises the web cam texture to mat helper disposed event.
+        /// Raises the source to mat helper disposed event.
         /// </summary>
-        public void OnWebCamTextureToMatHelperDisposed()
+        public void OnSourceToMatHelperDisposed()
         {
-            Debug.Log("OnWebCamTextureToMatHelperDisposed");
+            Debug.Log("OnSourceToMatHelperDisposed");
 
             grayMat.Dispose();
 
@@ -362,22 +385,27 @@ namespace FaceMaskExample
         }
 
         /// <summary>
-        /// Raises the web cam texture to mat helper error occurred event.
+        /// Raises the source to mat helper error occurred event.
         /// </summary>
         /// <param name="errorCode">Error code.</param>
-        public void OnWebCamTextureToMatHelperErrorOccurred(WebCamTextureToMatHelper.ErrorCode errorCode)
+        /// <param name="message">Message.</param>
+        public void OnSourceToMatHelperErrorOccurred(Source2MatHelperErrorCode errorCode, string message)
         {
-            Debug.Log("OnWebCamTextureToMatHelperErrorOccurred " + errorCode);
+            Debug.Log("OnSourceToMatHelperErrorOccurred " + errorCode + ":" + message);
+
+            if (fpsMonitor != null)
+            {
+                fpsMonitor.consoleText = "ErrorCode: " + errorCode + ":" + message;
+            }
         }
 
         // Update is called once per frame
         void Update()
         {
-
-            if (webCamTextureToMatHelper.IsPlaying() && webCamTextureToMatHelper.DidUpdateThisFrame())
+            if (multiSource2MatHelper.IsPlaying() && multiSource2MatHelper.DidUpdateThisFrame())
             {
 
-                Mat rgbaMat = webCamTextureToMatHelper.GetMat();
+                Mat rgbaMat = multiSource2MatHelper.GetMat();
 
                 // detect faces.
                 List<Rect> detectResult = new List<Rect>();
@@ -413,7 +441,7 @@ namespace FaceMaskExample
                     }
                 }
 
-
+                
                 // face tracking.
                 rectangleTracker.UpdateTrackedObjects(detectResult);
                 List<TrackedRect> trackedRects = new List<TrackedRect>();
@@ -475,6 +503,11 @@ namespace FaceMaskExample
                             opticalFlowFilterDict[tr.id].Process(rgbaMat, points, points);
                             lowPassFilterDict[tr.id].Process(rgbaMat, points, points);
                         }
+                    }
+
+                    if (extendForehead)
+                    {
+                        AddForeheadPoints(points);
                     }
 
                     landmarkPoints.Add(points);
@@ -561,16 +594,17 @@ namespace FaceMaskExample
                         //Imgproc.putText (rgbaMat, " " + frontalFaceChecker.GetFrontalFaceRate (landmarkPoints [i]), new Point (rect.xMin, rect.yMin - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar (255, 255, 255, 255), 2, Imgproc.LINE_AA, false);
                     }
                 }
+                
 
                 // draw face points.
                 if (displayDebugFacePoints)
                 {
                     for (int i = 0; i < landmarkPoints.Count; i++)
                     {
-                        OpenCVForUnityUtils.DrawFaceLandmark(rgbaMat, landmarkPoints[i], new Scalar(0, 255, 0, 255), 2);
+                        DrawFaceLandmark(rgbaMat, landmarkPoints[i], new Scalar(0, 255, 0, 255), 2);
                     }
                 }
-
+                
 
                 // display face mask image.
                 if (faceMaskTexture != null && faceMaskMat != null)
@@ -582,7 +616,7 @@ namespace FaceMaskExample
                     }
                     if (displayDebugFacePoints)
                     {
-                        OpenCVForUnityUtils.DrawFaceLandmark(faceMaskMat, faceLandmarkPointsInMask, new Scalar(0, 255, 0, 255), 2);
+                        DrawFaceLandmark(faceMaskMat, faceLandmarkPointsInMask, new Scalar(0, 255, 0, 255), 2);
                     }
 
                     float scale = (rgbaMat.width() / 4f) / faceMaskMat.width();
@@ -604,7 +638,7 @@ namespace FaceMaskExample
 
                 //Imgproc.putText (rgbaMat, "W:" + rgbaMat.width () + " H:" + rgbaMat.height () + " SO:" + Screen.orientation, new Point (5, rgbaMat.rows () - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar (255, 255, 255, 255), 1, Imgproc.LINE_AA, false);
 
-                OpenCVForUnity.UnityUtils.Utils.fastMatToTexture2D(rgbaMat, texture);
+                OpenCVForUnity.UnityUtils.Utils.matToTexture2D(rgbaMat, texture);
             }
         }
 
@@ -687,8 +721,8 @@ namespace FaceMaskExample
         /// </summary>
         void OnDestroy()
         {
-            if (webCamTextureToMatHelper != null)
-                webCamTextureToMatHelper.Dispose();
+            if (multiSource2MatHelper != null)
+                multiSource2MatHelper.Dispose();
 
             if (cascade != null)
                 cascade.Dispose();
@@ -713,13 +747,8 @@ namespace FaceMaskExample
             if (faceMaskColorCorrector != null)
                 faceMaskColorCorrector.Dispose();
 
-#if UNITY_WEBGL
-            if (getFilePath_Coroutine != null)
-            {
-                StopCoroutine(getFilePath_Coroutine);
-                ((IDisposable)getFilePath_Coroutine).Dispose();
-            }
-#endif
+            if (cts != null)
+                cts.Dispose();
         }
 
         /// <summary>
@@ -735,7 +764,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnPlayButtonClick()
         {
-            webCamTextureToMatHelper.Play();
+            multiSource2MatHelper.Play();
         }
 
         /// <summary>
@@ -743,7 +772,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnPauseButtonClick()
         {
-            webCamTextureToMatHelper.Pause();
+            multiSource2MatHelper.Pause();
         }
 
         /// <summary>
@@ -751,7 +780,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnChangeCameraButtonClick()
         {
-            webCamTextureToMatHelper.requestedIsFrontFacing = !webCamTextureToMatHelper.IsFrontFacing();
+            multiSource2MatHelper.requestedIsFrontFacing = !multiSource2MatHelper.requestedIsFrontFacing;
         }
 
         /// <summary>
@@ -759,14 +788,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnUseDlibFaceDetecterToggleValueChanged()
         {
-            if (useDlibFaceDetecterToggle.isOn)
-            {
-                useDlibFaceDetecter = true;
-            }
-            else
-            {
-                useDlibFaceDetecter = false;
-            }
+            useDlibFaceDetecter = useDlibFaceDetecterToggle.isOn;
         }
 
         /// <summary>
@@ -797,14 +819,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnEnableColorCorrectionToggleValueChanged()
         {
-            if (enableColorCorrectionToggle.isOn)
-            {
-                enableColorCorrection = true;
-            }
-            else
-            {
-                enableColorCorrection = false;
-            }
+            enableColorCorrection = enableColorCorrectionToggle.isOn;
         }
 
         /// <summary>
@@ -812,14 +827,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnFilterNonFrontalFacesToggleValueChanged()
         {
-            if (filterNonFrontalFacesToggle.isOn)
-            {
-                filterNonFrontalFaces = true;
-            }
-            else
-            {
-                filterNonFrontalFaces = false;
-            }
+            filterNonFrontalFaces = filterNonFrontalFacesToggle.isOn;
         }
 
         /// <summary>
@@ -827,14 +835,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnDisplayFaceRectsToggleValueChanged()
         {
-            if (displayFaceRectsToggle.isOn)
-            {
-                displayFaceRects = true;
-            }
-            else
-            {
-                displayFaceRects = false;
-            }
+            displayFaceRects = displayFaceRectsToggle.isOn;
         }
 
         /// <summary>
@@ -842,14 +843,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnDisplayDebugFacePointsToggleValueChanged()
         {
-            if (displayDebugFacePointsToggle.isOn)
-            {
-                displayDebugFacePoints = true;
-            }
-            else
-            {
-                displayDebugFacePoints = false;
-            }
+            displayDebugFacePoints = displayDebugFacePointsToggle.isOn;
         }
 
         /// <summary>
@@ -901,6 +895,13 @@ namespace FaceMaskExample
                 faceLandmarkPointsInMask = maskData.landmarkPoints;
             }
 
+            if (extendForehead)
+            {
+                List<Vector2> newLandmarkPointsInMask = new List<Vector2>(faceLandmarkPointsInMask);
+                AddForeheadPoints(newLandmarkPointsInMask);
+                faceLandmarkPointsInMask = newLandmarkPointsInMask;
+            }
+
             if (faceRectInMask.width == 0 && faceRectInMask.height == 0)
             {
                 RemoveFaceMask();
@@ -918,10 +919,10 @@ namespace FaceMaskExample
             RemoveFaceMask();
 
             // Capture webcam frame.
-            if (webCamTextureToMatHelper.IsPlaying())
+            if (multiSource2MatHelper.IsPlaying())
             {
 
-                Mat rgbaMat = webCamTextureToMatHelper.GetMat();
+                Mat rgbaMat = multiSource2MatHelper.GetMat();
 
                 faceRectInMask = DetectFace(rgbaMat);
                 if (faceRectInMask.width == 0 && faceRectInMask.height == 0)
@@ -941,6 +942,11 @@ namespace FaceMaskExample
 
                 faceRectInMask = DetectFace(faceMaskMat);
                 faceLandmarkPointsInMask = DetectFaceLandmarkPoints(faceMaskMat, faceRectInMask);
+
+                if (extendForehead)
+                {
+                    AddForeheadPoints(faceLandmarkPointsInMask);
+                }
 
                 if (faceRectInMask.width == 0 && faceRectInMask.height == 0)
                 {
@@ -968,6 +974,7 @@ namespace FaceMaskExample
             }
 
             rectangleTracker.Reset();
+
             meshOverlay.Reset();
         }
 
@@ -1012,6 +1019,236 @@ namespace FaceMaskExample
             List<Vector2> points = faceLandmarkDetector.DetectLandmark(rect);
 
             return points;
+        }
+
+        private void ExtendForehead(Mesh mesh)
+        {
+            if (mesh.vertices.Length != 68)
+                throw new ArgumentException("Invalid face mask mesh", "mesh");
+
+            List<Vector2> verticesList = new List<Vector2>(mesh.vertices.Length);
+            foreach (Vector3 v in mesh.vertices)
+            {
+                verticesList.Add(new Vector2(v.x, v.y));
+            }
+
+            AddForeheadPoints(verticesList);
+
+            Vector3[] vertices = new Vector3[verticesList.Count];
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                vertices[i] = new Vector3(verticesList[i].x, verticesList[i].y);
+            }
+            mesh.vertices = vertices;
+
+            int[] foreheadTriangles = new int[13 * 3] {
+                68, 16, 26,
+                68, 26, 25,
+                69, 68, 25,
+                69, 25, 24,
+                69, 24, 23,
+                70, 69, 23,
+
+                70, 23, 20,
+
+                71, 70, 20,
+                71, 20, 19,
+                71, 19, 18,
+                72, 71, 18,
+                72, 18, 17,
+                72, 17, 0
+            };
+            int[] triangles = new int[mesh.triangles.Length + foreheadTriangles.Length];
+            mesh.triangles.CopyTo(triangles, 0);
+            foreheadTriangles.CopyTo(triangles, mesh.triangles.Length);
+            mesh.triangles = triangles;
+
+            Vector2[] uv = new Vector2[mesh.uv.Length];
+            for (int j = 0; j < uv.Length; j++)
+            {
+                uv[j].x = vertices[j].x + 0.5f;
+                uv[j].y = vertices[j].y + 0.5f;
+            }
+            mesh.uv = uv;
+            mesh.uv2 = (Vector2[])uv.Clone();
+
+            mesh.RecalculateNormals();
+        }
+
+        private void AddForeheadPoints(List<Vector2> points)
+        {
+            if (points.Count != 68)
+                throw new ArgumentException("Invalid face landmark points", "points");
+
+            Vector2 noseLength = new Vector2(points[27].x - points[30].x, points[27].y - points[30].y);
+            Vector2 glabellaPoint = new Vector2((points[19].x + points[24].x) / 2f, (points[19].y + points[24].y) / 2f);
+
+            points.Add(new Vector2(points[26].x + noseLength.x * 0.8f, points[26].y + noseLength.y * 0.8f));
+            points.Add(new Vector2(points[24].x + noseLength.x, points[24].y + noseLength.y));
+            points.Add(new Vector2(glabellaPoint.x + noseLength.x * 1.1f, glabellaPoint.y + noseLength.y * 1.1f));
+            points.Add(new Vector2(points[19].x + noseLength.x, points[19].y + noseLength.y));
+            points.Add(new Vector2(points[17].x + noseLength.x * 0.8f, points[17].y + noseLength.y * 0.8f));
+        }
+
+        private static void DrawFaceLandmark(Mat imgMat, List<Vector2> points, Scalar color, int thickness)
+        {
+            if (points.Count == 73)
+            { // If landmark points of forehead exists.
+                for (int i = 1; i <= 16; ++i)
+                    Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+
+                for (int i = 28; i <= 30; ++i)
+                    Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+
+                for (int i = 18; i <= 21; ++i)
+                    Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                for (int i = 23; i <= 26; ++i)
+                    Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                for (int i = 31; i <= 35; ++i)
+                    Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                Imgproc.line(imgMat, new Point(points[30].x, points[30].y), new Point(points[35].x, points[35].y), color, thickness);
+
+                for (int i = 37; i <= 41; ++i)
+                    Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                Imgproc.line(imgMat, new Point(points[36].x, points[36].y), new Point(points[41].x, points[41].y), color, thickness);
+
+                for (int i = 43; i <= 47; ++i)
+                    Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                Imgproc.line(imgMat, new Point(points[42].x, points[42].y), new Point(points[47].x, points[47].y), color, thickness);
+
+                for (int i = 49; i <= 59; ++i)
+                    Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                Imgproc.line(imgMat, new Point(points[48].x, points[48].y), new Point(points[59].x, points[59].y), color, thickness);
+
+                for (int i = 61; i <= 67; ++i)
+                    Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                Imgproc.line(imgMat, new Point(points[60].x, points[60].y), new Point(points[67].x, points[67].y), color, thickness);
+
+                for (int i = 69; i <= 72; ++i)
+                    Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), new Scalar(0, 255, 0, 255), thickness);
+            }
+            else
+            {
+                OpenCVForUnityUtils.DrawFaceLandmark(imgMat, points, color, thickness);
+            }
+        }
+
+        private Texture2D CreateFaceMaskAlphaMaskTexture(float width, float height, Vector2[] uv, bool makeBothEyesTransparent = true, bool makeMouthTransparent = true)
+        {
+            if (uv.Length != 68 && uv.Length != 73)
+                throw new ArgumentException("Invalid face landmark points", "uv");
+
+            Vector2[] facialContourUVPoints = new Vector2[0];
+            if (uv.Length == 68)
+            {
+                facialContourUVPoints = new Vector2[] {
+                    uv [0],
+                    uv [1],
+                    uv [2],
+                    uv [3],
+                    uv [4],
+                    uv [5],
+                    uv [6],
+                    uv [7],
+                    uv [8],
+                    uv [9],
+                    uv [10],
+                    uv [11],
+                    uv [12],
+                    uv [13],
+                    uv [14],
+                    uv [15],
+                    uv [16],
+                    uv [26],
+                    uv [25],
+                    uv [24],
+                    uv [23],
+                    uv [20],
+                    uv [19],
+                    uv [18],
+                    uv [17]
+                };
+            }
+            else if (uv.Length == 73)
+            { // If landmark points of forehead exists.
+                facialContourUVPoints = new Vector2[] {
+                    uv [0],
+                    uv [1],
+                    uv [2],
+                    uv [3],
+                    uv [4],
+                    uv [5],
+                    uv [6],
+                    uv [7],
+                    uv [8],
+                    uv [9],
+                    uv [10],
+                    uv [11],
+                    uv [12],
+                    uv [13],
+                    uv [14],
+                    uv [15],
+                    uv [16],
+                    uv [68],
+                    uv [69],
+                    uv [70],
+                    uv [71],
+                    uv [72]
+                };
+            }
+
+            Vector2[] rightEyeContourUVPoints = new Vector2[] {
+                uv [36],
+                uv [37],
+                uv [38],
+                uv [39],
+                uv [40],
+                uv [41]
+            };
+
+            Vector2[] leftEyeContourUVPoints = new Vector2[] {
+                uv [42],
+                uv [43],
+                uv [44],
+                uv [45],
+                uv [46],
+                uv [47]
+            };
+
+            Vector2[] mouthContourUVPoints = new Vector2[] {
+                uv [60],
+                uv [61],
+                uv [62],
+                uv [63],
+                uv [64],
+                uv [65],
+                uv [66],
+                uv [67]
+            };
+
+            Vector2[][] exclusionAreas;
+            if (makeBothEyesTransparent == true && makeMouthTransparent == false)
+            {
+                exclusionAreas = new Vector2[][] { rightEyeContourUVPoints, leftEyeContourUVPoints };
+            }
+            else if (makeBothEyesTransparent == false && makeMouthTransparent == true)
+            {
+                exclusionAreas = new Vector2[][] { mouthContourUVPoints };
+            }
+            else if (makeBothEyesTransparent == true && makeMouthTransparent == true)
+            {
+                exclusionAreas = new Vector2[][] {
+                    rightEyeContourUVPoints,
+                    leftEyeContourUVPoints,
+                    mouthContourUVPoints
+                };
+            }
+            else
+            {
+                exclusionAreas = new Vector2[][] { };
+            }
+
+            return AlphaMaskTextureCreater.CreateAlphaMaskTexture(width, height, facialContourUVPoints, exclusionAreas);
         }
     }
 }
