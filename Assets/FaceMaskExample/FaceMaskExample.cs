@@ -76,19 +76,9 @@ namespace FaceMaskExample
             SceneManager.LoadScene("Texture2DFaceMaskExample");
         }
 
-        public void OnVideoCaptureFaceMaskExampleButtonClick()
+        public void OnMultiSourceFaceMaskExampleButtonClick()
         {
-            SceneManager.LoadScene("VideoCaptureFaceMaskExample");
-        }
-
-        public void OnWebCamTextureFaceMaskExampleButtonClick()
-        {
-            SceneManager.LoadScene("WebCamTextureFaceMaskExample");
-        }
-
-        public void OnWebCamTextureFaceMaskAdditionalExampleButtonClick()
-        {
-            SceneManager.LoadScene("WebCamTextureFaceMaskAdditionalExample");
+            SceneManager.LoadScene("MultiSourceFaceMaskExample");
         }
     }
 }

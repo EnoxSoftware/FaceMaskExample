@@ -2,10 +2,11 @@ using DlibFaceLandmarkDetector;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.ObjdetectModule;
+using OpenCVForUnity.UnityUtils;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -110,43 +111,33 @@ namespace FaceMaskExample
         /// </summary>
         string sp_human_face_68_dat_filepath;
 
-#if UNITY_WEBGL
-        IEnumerator getFilePath_Coroutine;
-#endif
+        /// <summary>
+        /// The FPS monitor.
+        /// </summary>
+        FpsMonitor fpsMonitor;
+
+        /// <summary>
+        /// The CancellationTokenSource.
+        /// </summary>
+        CancellationTokenSource cts = new CancellationTokenSource();
 
         // Use this for initialization
-        void Start()
+        async void Start()
         {
-#if UNITY_WEBGL
-            getFilePath_Coroutine = GetFilePath();
-            StartCoroutine(getFilePath_Coroutine);
-#else
-            haarcascade_frontalface_alt_xml_filepath = OpenCVForUnity.UnityUtils.Utils.getFilePath("DlibFaceLandmarkDetector/haarcascade_frontalface_alt.xml");
-            sp_human_face_68_dat_filepath = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePath("DlibFaceLandmarkDetector/sp_human_face_68.dat");
-            Run();
-#endif
-        }
+            fpsMonitor = GetComponent<FpsMonitor>();
 
-#if UNITY_WEBGL
-        private IEnumerator GetFilePath()
-        {
-            var getFilePathAsync_0_Coroutine = OpenCVForUnity.UnityUtils.Utils.getFilePathAsync("DlibFaceLandmarkDetector/haarcascade_frontalface_alt.xml", (result) =>
-            {
-                haarcascade_frontalface_alt_xml_filepath = result;
-            });
-            yield return getFilePathAsync_0_Coroutine;
+            // Asynchronously retrieves the readable file path from the StreamingAssets directory.
+            if (fpsMonitor != null)
+                fpsMonitor.consoleText = "Preparing file access...";
 
-            var getFilePathAsync_1_Coroutine = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePathAsync("DlibFaceLandmarkDetector/sp_human_face_68.dat", (result) =>
-            {
-                sp_human_face_68_dat_filepath = result;
-            });
-            yield return getFilePathAsync_1_Coroutine;
+            haarcascade_frontalface_alt_xml_filepath = await Utils.getFilePathAsyncTask("DlibFaceLandmarkDetector/haarcascade_frontalface_alt.xml", cancellationToken: cts.Token);
+            sp_human_face_68_dat_filepath = await Utils.getFilePathAsyncTask("DlibFaceLandmarkDetector/sp_human_face_68.dat", cancellationToken: cts.Token);
 
-            getFilePath_Coroutine = null;
+            if (fpsMonitor != null)
+                fpsMonitor.consoleText = "";
 
             Run();
         }
-#endif
 
         private void Run()
         {
@@ -161,18 +152,15 @@ namespace FaceMaskExample
             if (imgTexture == null)
                 imgTexture = Resources.Load("family") as Texture2D;
 
+            // Adjust the scale of the game object to match the dimensions of the texture
             gameObject.transform.localScale = new Vector3(imgTexture.width, imgTexture.height, 1);
             Debug.Log("Screen.width " + Screen.width + " Screen.height " + Screen.height + " Screen.orientation " + Screen.orientation);
 
-            meshOverlay.UpdateOverlayTransform(gameObject.transform);
-            meshOverlay.Reset();
-
-
+            // Adjust the orthographic size of the main Camera to fit the aspect ratio of the image
             float width = 0;
             float height = 0;
             width = gameObject.transform.localScale.x;
             height = gameObject.transform.localScale.y;
-
             float widthScale = (float)Screen.width / width;
             float heightScale = (float)Screen.height / height;
             if (widthScale < heightScale)
@@ -184,9 +172,14 @@ namespace FaceMaskExample
                 Camera.main.orthographicSize = height / 2;
             }
 
+
+            meshOverlay.UpdateOverlayTransform(gameObject.transform);
+            meshOverlay.Reset();
+
+
             Mat rgbaMat = new Mat(imgTexture.height, imgTexture.width, CvType.CV_8UC4);
 
-            OpenCVForUnity.UnityUtils.Utils.texture2DToMat(imgTexture, rgbaMat);
+            Utils.texture2DToMat(imgTexture, rgbaMat);
             Debug.Log("rgbaMat ToString " + rgbaMat.ToString());
 
             if (faceLandmarkDetector == null)
@@ -341,7 +334,9 @@ namespace FaceMaskExample
 
 
             Texture2D texture = new Texture2D(rgbaMat.cols(), rgbaMat.rows(), TextureFormat.RGBA32, false);
-            OpenCVForUnity.UnityUtils.Utils.matToTexture2D(rgbaMat, texture);
+            Utils.matToTexture2D(rgbaMat, texture);
+
+            // Set the Texture2D as the main texture of the Renderer component attached to the game object
             gameObject.transform.GetComponent<Renderer>().material.mainTexture = texture;
 
             frontalFaceChecker.Dispose();
@@ -362,13 +357,8 @@ namespace FaceMaskExample
             if (cascade != null)
                 cascade.Dispose();
 
-#if UNITY_WEBGL
-            if (getFilePath_Coroutine != null)
-            {
-                StopCoroutine(getFilePath_Coroutine);
-                ((IDisposable)getFilePath_Coroutine).Dispose();
-            }
-#endif
+            if (cts != null)
+                cts.Dispose();
         }
 
         /// <summary>
@@ -393,14 +383,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnUseDlibFaceDetecterToggleValueChanged()
         {
-            if (useDlibFaceDetecterToggle.isOn)
-            {
-                useDlibFaceDetecter = true;
-            }
-            else
-            {
-                useDlibFaceDetecter = false;
-            }
+            useDlibFaceDetecter = useDlibFaceDetecterToggle.isOn;
 
             if (imgTexture != null)
                 Run();
@@ -411,14 +394,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnEnableColorCorrectionToggleValueChanged()
         {
-            if (enableColorCorrectionToggle.isOn)
-            {
-                enableColorCorrection = true;
-            }
-            else
-            {
-                enableColorCorrection = false;
-            }
+            enableColorCorrection = enableColorCorrectionToggle.isOn;
 
             if (imgTexture != null)
                 Run();
@@ -429,14 +405,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnFilterNonFrontalFacesToggleValueChanged()
         {
-            if (filterNonFrontalFacesToggle.isOn)
-            {
-                filterNonFrontalFaces = true;
-            }
-            else
-            {
-                filterNonFrontalFaces = false;
-            }
+            filterNonFrontalFaces = filterNonFrontalFacesToggle.isOn;
 
             if (imgTexture != null)
                 Run();
@@ -447,14 +416,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnDisplayFaceRectsToggleValueChanged()
         {
-            if (displayFaceRectsToggle.isOn)
-            {
-                displayFaceRects = true;
-            }
-            else
-            {
-                displayFaceRects = false;
-            }
+            displayFaceRects = displayFaceRectsToggle.isOn;
 
             if (imgTexture != null)
                 Run();
@@ -465,14 +427,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnDisplayDebugFacePointsToggleValueChanged()
         {
-            if (displayDebugFacePointsToggle.isOn)
-            {
-                displayDebugFacePoints = true;
-            }
-            else
-            {
-                displayDebugFacePoints = false;
-            }
+            displayDebugFacePoints = displayDebugFacePointsToggle.isOn;
 
             if (imgTexture != null)
                 Run();
