@@ -853,6 +853,7 @@ GameObject:
   - component: {fileID: 553942311}
   - component: {fileID: 553942310}
   - component: {fileID: 553942309}
+  - component: {fileID: 553942312}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -913,6 +914,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &553942312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 553942307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 891a8bae6d45c8647857c65a555ef5ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &571666157
 GameObject:
   m_ObjectHideFlags: 0
@@ -2829,15 +2842,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 2099749952}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd57f7322151d1e48a147066c213efaf, type: 3}
+  m_Script: {fileID: 11500000, guid: ed6c0c60eba2e3341b249e112dcc29a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   alignment: 1
   offset: {x: 10, y: 10}
   boxVisible: 1
-  boxWidth: 75
-  boxHeight: 30
-  padding: {x: 8, y: 5}
+  boxWidth: 95
+  boxHeight: 35
+  padding: {x: 10, y: 10}
   consoleHeight: 100
 --- !u!1 &2138936149
 GameObject:

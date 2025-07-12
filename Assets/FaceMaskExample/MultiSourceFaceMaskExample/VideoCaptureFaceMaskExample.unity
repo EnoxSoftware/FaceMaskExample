@@ -3433,16 +3433,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1362053823}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd57f7322151d1e48a147066c213efaf, type: 3}
+  m_Script: {fileID: 11500000, guid: ed6c0c60eba2e3341b249e112dcc29a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  alignment: 3
-  offset: {x: 10, y: 10}
-  boxVisible: 1
-  boxWidth: 200
-  boxHeight: 110
-  padding: {x: 8, y: 5}
-  consoleHeight: 100
+  AlignmentSetting: 1
+  Offset: {x: 10, y: 10}
+  BoxVisible: 1
+  BoxWidth: 95
+  BoxHeight: 35
+  Padding: {x: 10, y: 10}
+  ConsoleHeight: 100
 --- !u!114 &1362053832
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3452,11 +3452,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1362053823}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e564a549956aebc4d9acef3ff91b0981, type: 3}
+  m_Script: {fileID: 11500000, guid: e6710d062e27d084c92efbd532befe37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _currentSource2MatHelperClassInterfaces: 66
   _requestedSource2MatHelperClassName: 1
-  _currentSource2MatHelperClassCategory: 1
   _requestedDeviceName: 
   _requestedWidth: 640
   _requestedHeight: 480
@@ -3467,6 +3467,10 @@ MonoBehaviour:
   _requestedImageFilePath: 
   _repeat: 1
   _sourceTexture: {fileID: 0}
+  _requestedMatUpdateFPS: 30
+  _rotate90Degree: 0
+  _flipVertical: 0
+  _flipHorizontal: 0
   _customClassComponent: {fileID: 0}
   _outputColorFormat: 3
   _timeoutFrameCount: 1500
@@ -3474,8 +3478,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1362053828}
-        m_TargetAssemblyTypeName: FaceMaskExample.MultiSourceFaceMaskAdditionalExample,
-          Assembly-CSharp
+        m_TargetAssemblyTypeName: FaceMaskExample.MultiSourceFaceMaskExample, Assembly-CSharp
         m_MethodName: OnSourceToMatHelperInitialized
         m_Mode: 1
         m_Arguments:
@@ -3490,8 +3493,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1362053828}
-        m_TargetAssemblyTypeName: FaceMaskExample.MultiSourceFaceMaskAdditionalExample,
-          Assembly-CSharp
+        m_TargetAssemblyTypeName: FaceMaskExample.MultiSourceFaceMaskExample, Assembly-CSharp
         m_MethodName: OnSourceToMatHelperDisposed
         m_Mode: 1
         m_Arguments:
@@ -3506,8 +3508,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1362053828}
-        m_TargetAssemblyTypeName: FaceMaskExample.MultiSourceFaceMaskAdditionalExample,
-          Assembly-CSharp
+        m_TargetAssemblyTypeName: FaceMaskExample.MultiSourceFaceMaskExample, Assembly-CSharp
         m_MethodName: OnSourceToMatHelperErrorOccurred
         m_Mode: 0
         m_Arguments:
@@ -3648,6 +3649,7 @@ GameObject:
   - component: {fileID: 1462179234}
   - component: {fileID: 1462179233}
   - component: {fileID: 1462179232}
+  - component: {fileID: 1462179235}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -3708,6 +3710,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1462179235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1462179230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 891a8bae6d45c8647857c65a555ef5ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1472142514
 GameObject:
   m_ObjectHideFlags: 0

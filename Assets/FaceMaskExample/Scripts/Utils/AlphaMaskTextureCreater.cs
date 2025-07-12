@@ -1,6 +1,6 @@
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
-using OpenCVForUnity.UnityUtils;
+using OpenCVForUnity.UnityIntegration;
 using UnityEngine;
 
 namespace FaceMaskExample
@@ -48,7 +48,7 @@ namespace FaceMaskExample
             Core.bitwise_xor(baseAreaMaskMat, exclusionAreaMaskMat, maskMat);
 
             Texture2D texture = new Texture2D((int)width, (int)height, TextureFormat.RGB24, false);
-            Utils.matToTexture2D(maskMat, texture);
+            OpenCVMatUtils.MatToTexture2D(maskMat, texture);
 
             maskMat.Dispose();
             baseAreaMaskMat.Dispose();

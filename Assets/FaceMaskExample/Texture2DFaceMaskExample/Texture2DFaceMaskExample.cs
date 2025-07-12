@@ -1,8 +1,9 @@
 using DlibFaceLandmarkDetector;
+using DlibFaceLandmarkDetector.UnityIntegration;
 using OpenCVForUnity.CoreModule;
 using OpenCVForUnity.ImgprocModule;
 using OpenCVForUnity.ObjdetectModule;
-using OpenCVForUnity.UnityUtils;
+using OpenCVForUnity.UnityIntegration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -128,13 +129,13 @@ namespace FaceMaskExample
 
             // Asynchronously retrieves the readable file path from the StreamingAssets directory.
             if (fpsMonitor != null)
-                fpsMonitor.consoleText = "Preparing file access...";
+                fpsMonitor.ConsoleText = "Preparing file access...";
 
-            haarcascade_frontalface_alt_xml_filepath = await Utils.getFilePathAsyncTask("DlibFaceLandmarkDetector/haarcascade_frontalface_alt.xml", cancellationToken: cts.Token);
-            sp_human_face_68_dat_filepath = await Utils.getFilePathAsyncTask("DlibFaceLandmarkDetector/sp_human_face_68.dat", cancellationToken: cts.Token);
+            haarcascade_frontalface_alt_xml_filepath = await OpenCVEnv.GetFilePathTaskAsync("DlibFaceLandmarkDetector/haarcascade_frontalface_alt.xml", cancellationToken: cts.Token);
+            sp_human_face_68_dat_filepath = await OpenCVEnv.GetFilePathTaskAsync("DlibFaceLandmarkDetector/sp_human_face_68.dat", cancellationToken: cts.Token);
 
             if (fpsMonitor != null)
-                fpsMonitor.consoleText = "";
+                fpsMonitor.ConsoleText = "";
 
             Run();
         }
@@ -179,7 +180,7 @@ namespace FaceMaskExample
 
             Mat rgbaMat = new Mat(imgTexture.height, imgTexture.width, CvType.CV_8UC4);
 
-            Utils.texture2DToMat(imgTexture, rgbaMat);
+            OpenCVMatUtils.Texture2DToMat(imgTexture, rgbaMat);
             Debug.Log("rgbaMat ToString " + rgbaMat.ToString());
 
             if (faceLandmarkDetector == null)
@@ -192,7 +193,7 @@ namespace FaceMaskExample
             List<Rect> detectResult = new List<Rect>();
             if (useDlibFaceDetecter)
             {
-                OpenCVForUnityUtils.SetImage(faceLandmarkDetector, rgbaMat);
+                DlibOpenCVUtils.SetImage(faceLandmarkDetector, rgbaMat);
                 List<UnityEngine.Rect> result = faceLandmarkDetector.Detect();
 
                 foreach (var unityRect in result)
@@ -230,17 +231,17 @@ namespace FaceMaskExample
             }
 
             // detect face landmark points.
-            OpenCVForUnityUtils.SetImage(faceLandmarkDetector, rgbaMat);
+            DlibOpenCVUtils.SetImage(faceLandmarkDetector, rgbaMat);
             List<List<Vector2>> landmarkPoints = new List<List<Vector2>>();
             foreach (var openCVRect in detectResult)
             {
                 UnityEngine.Rect rect = new UnityEngine.Rect(openCVRect.x, openCVRect.y, openCVRect.width, openCVRect.height);
 
                 Debug.Log("face : " + rect);
-                //OpenCVForUnityUtils.DrawFaceRect(imgMat, rect, new Scalar(255, 0, 0, 255), 2);
+                //DlibOpenCVUtils.DrawFaceRect(imgMat, rect, new Scalar(255, 0, 0, 255), 2);
 
                 List<Vector2> points = faceLandmarkDetector.DetectLandmark(rect);
-                //OpenCVForUnityUtils.DrawFaceLandmark(imgMat, points, new Scalar(0, 255, 0, 255), 2);
+                //DlibOpenCVUtils.DrawFaceLandmark(imgMat, points, new Scalar(0, 255, 0, 255), 2);
                 landmarkPoints.Add(points);
             }
 
@@ -312,14 +313,14 @@ namespace FaceMaskExample
             {
                 int ann = face_nums[0];
                 UnityEngine.Rect rect_ann = new UnityEngine.Rect(detectResult[ann].x, detectResult[ann].y, detectResult[ann].width, detectResult[ann].height);
-                OpenCVForUnityUtils.DrawFaceRect(rgbaMat, rect_ann, new Scalar(255, 255, 0, 255), 2);
+                DlibOpenCVUtils.DrawFaceRect(rgbaMat, rect_ann, new Scalar(255, 255, 0, 255), 2);
 
                 int bob = 0;
                 for (int i = 1; i < face_nums.Length; i++)
                 {
                     bob = face_nums[i];
                     UnityEngine.Rect rect_bob = new UnityEngine.Rect(detectResult[bob].x, detectResult[bob].y, detectResult[bob].width, detectResult[bob].height);
-                    OpenCVForUnityUtils.DrawFaceRect(rgbaMat, rect_bob, new Scalar(255, 0, 0, 255), 2);
+                    DlibOpenCVUtils.DrawFaceRect(rgbaMat, rect_bob, new Scalar(255, 0, 0, 255), 2);
                 }
             }
 
@@ -328,13 +329,13 @@ namespace FaceMaskExample
             {
                 for (int i = 0; i < landmarkPoints.Count; i++)
                 {
-                    OpenCVForUnityUtils.DrawFaceLandmark(rgbaMat, landmarkPoints[i], new Scalar(0, 255, 0, 255), 2);
+                    DlibOpenCVUtils.DrawFaceLandmark(rgbaMat, landmarkPoints[i], new Scalar(0, 255, 0, 255), 2);
                 }
             }
 
 
             Texture2D texture = new Texture2D(rgbaMat.cols(), rgbaMat.rows(), TextureFormat.RGBA32, false);
-            Utils.matToTexture2D(rgbaMat, texture);
+            OpenCVMatUtils.MatToTexture2D(rgbaMat, texture);
 
             // Set the Texture2D as the main texture of the Renderer component attached to the game object
             gameObject.transform.GetComponent<Renderer>().material.mainTexture = texture;

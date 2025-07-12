@@ -1,4 +1,6 @@
+using DlibFaceLandmarkDetector.UnityIntegration;
 using OpenCVForUnity.CoreModule;
+using OpenCVForUnity.UnityIntegration;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -20,8 +22,8 @@ namespace FaceMaskExample
         {
             exampleTitle.text = "FaceMask Example " + Application.version;
 
-            versionInfo.text = Core.NATIVE_LIBRARY_NAME + " " + OpenCVForUnity.UnityUtils.Utils.getVersion() + " (" + Core.VERSION + ")";
-            versionInfo.text += " / " + "dlibfacelandmarkdetector" + " " + DlibFaceLandmarkDetector.UnityUtils.Utils.getVersion();
+            versionInfo.text = Core.NATIVE_LIBRARY_NAME + " " + OpenCVEnv.GetVersion() + " (" + Core.VERSION + ")";
+            versionInfo.text += " / " + "dlibfacelandmarkdetector" + " " + DlibEnv.GetVersion();
             versionInfo.text += " / UnityEditor " + Application.unityVersion;
             versionInfo.text += " / ";
 

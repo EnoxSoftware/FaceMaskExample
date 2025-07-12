@@ -1,5 +1,5 @@
 using OpenCVForUnity.CoreModule;
-using OpenCVForUnity.UnityUtils;
+using OpenCVForUnity.UnityIntegration;
 using System;
 using UnityEngine;
 
@@ -61,18 +61,18 @@ namespace FaceMaskExample
             if (src_mask != null)
             {
                 src_mask_byte = new byte[src_mask.total() * src_mask.channels()];
-                MatUtils.copyFromMat<byte>(src_mask, src_mask_byte);
+                OpenCVMatUtils.CopyFromMat<byte>(src_mask, src_mask_byte);
             }
             if (dst_mask != null)
             {
                 dst_mask_byte = new byte[dst_mask.total() * dst_mask.channels()];
-                MatUtils.copyFromMat<byte>(dst_mask, dst_mask_byte);
+                OpenCVMatUtils.CopyFromMat<byte>(dst_mask, dst_mask_byte);
             }
 
             byte[] src_byte = new byte[src.total() * src.channels()];
-            MatUtils.copyFromMat<byte>(src, src_byte);
+            OpenCVMatUtils.CopyFromMat<byte>(src, src_byte);
             byte[] dst_byte = new byte[dst.total() * dst.channels()];
-            MatUtils.copyFromMat<byte>(dst, dst_byte);
+            OpenCVMatUtils.CopyFromMat<byte>(dst, dst_byte);
 
             int pixel_i = 0;
             int channels = src.channels();
