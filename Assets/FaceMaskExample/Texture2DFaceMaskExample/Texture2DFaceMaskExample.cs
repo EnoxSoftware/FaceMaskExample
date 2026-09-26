@@ -1,16 +1,18 @@
-using DlibFaceLandmarkDetector;
-using DlibFaceLandmarkDetector.UnityIntegration;
-using OpenCVForUnity.CoreModule;
-using OpenCVForUnity.ImgprocModule;
-using OpenCVForUnity.ObjdetectModule;
-using OpenCVForUnity.UnityIntegration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using DlibFaceLandmarkDetector;
+using DlibFaceLandmarkDetector.UnityIntegration;
+using DlibFaceLandmarkDetector.UnityIntegration.Helper.UI;
+using OpenCVForUnity.CoreModule;
+using OpenCVForUnity.ImgprocModule;
+using OpenCVForUnity.UnityIntegration;
+using OpenCVForUnity.XobjdetectModule;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using DlibOpenCVUtils = DlibFaceLandmarkDetector.Extensions.DlibOpenCVUtils;
 using Rect = OpenCVForUnity.CoreModule.Rect;
 
 namespace FaceMaskExample
@@ -80,69 +82,73 @@ namespace FaceMaskExample
         /// <summary>
         /// The image texture.
         /// </summary>
-        Texture2D imgTexture;
+        private Texture2D imgTexture;
 
         /// <summary>
         /// The cascade.
         /// </summary>
-        CascadeClassifier cascade;
+        private CascadeClassifier cascade;
 
         /// <summary>
         /// The face landmark detector.
         /// </summary>
-        FaceLandmarkDetector faceLandmarkDetector;
+        private FaceLandmarkDetector faceLandmarkDetector;
 
         /// <summary>
         /// The face mask color corrector.
         /// </summary>
-        FaceMaskColorCorrector faceMaskColorCorrector;
+        private FaceMaskColorCorrector faceMaskColorCorrector;
 
         /// <summary>
         /// The mesh overlay.
         /// </summary>
-        TrackedMeshOverlay meshOverlay;
+        private TrackedMeshOverlay meshOverlay;
 
         /// <summary>
         /// The haarcascade_frontalface_alt_xml_filepath.
         /// </summary>
-        string haarcascade_frontalface_alt_xml_filepath;
+        private string haarcascade_frontalface_alt_xml_filepath;
 
         /// <summary>
         /// The sp_human_face_68_dat_filepath.
         /// </summary>
-        string sp_human_face_68_dat_filepath;
+        private string sp_human_face_68_dat_filepath;
 
         /// <summary>
         /// The FPS monitor.
         /// </summary>
-        FpsMonitor fpsMonitor;
+        private FpsMonitor fpsMonitor;
 
         /// <summary>
         /// The CancellationTokenSource.
         /// </summary>
-        CancellationTokenSource cts = new CancellationTokenSource();
+        private CancellationTokenSource cts = new CancellationTokenSource();
 
         // Use this for initialization
-        async void Start()
+        private async void Start()
         {
             fpsMonitor = GetComponent<FpsMonitor>();
 
             // Asynchronously retrieves the readable file path from the StreamingAssets directory.
             if (fpsMonitor != null)
+            {
                 fpsMonitor.ConsoleText = "Preparing file access...";
+            }
 
-            haarcascade_frontalface_alt_xml_filepath = await OpenCVEnv.GetFilePathTaskAsync("DlibFaceLandmarkDetector/haarcascade_frontalface_alt.xml", cancellationToken: cts.Token);
-            sp_human_face_68_dat_filepath = await OpenCVEnv.GetFilePathTaskAsync("DlibFaceLandmarkDetector/sp_human_face_68.dat", cancellationToken: cts.Token);
+            haarcascade_frontalface_alt_xml_filepath = await DlibEnv.GetFilePathAsync("DlibFaceLandmarkDetector/haarcascade_frontalface_alt.xml", cancellationToken: cts.Token);
+            sp_human_face_68_dat_filepath = await DlibEnv.GetFilePathAsync("DlibFaceLandmarkDetector/sp_human_face_68.dat", cancellationToken: cts.Token);
 
             if (fpsMonitor != null)
+            {
                 fpsMonitor.ConsoleText = "";
+            }
 
             Run();
         }
 
         private void Run()
         {
-            meshOverlay = this.GetComponent<TrackedMeshOverlay>();
+            meshOverlay = GetComponent<TrackedMeshOverlay>();
 
             displayFaceRectsToggle.isOn = displayFaceRects;
             useDlibFaceDetecterToggle.isOn = useDlibFaceDetecter;
@@ -151,7 +157,9 @@ namespace FaceMaskExample
             displayDebugFacePointsToggle.isOn = displayDebugFacePoints;
 
             if (imgTexture == null)
+            {
                 imgTexture = Resources.Load("family") as Texture2D;
+            }
 
             // Adjust the scale of the game object to match the dimensions of the texture
             gameObject.transform.localScale = new Vector3(imgTexture.width, imgTexture.height, 1);
@@ -173,18 +181,18 @@ namespace FaceMaskExample
                 Camera.main.orthographicSize = height / 2;
             }
 
-
             meshOverlay.UpdateOverlayTransform(gameObject.transform);
             meshOverlay.Reset();
 
-
             Mat rgbaMat = new Mat(imgTexture.height, imgTexture.width, CvType.CV_8UC4);
 
-            OpenCVMatUtils.Texture2DToMat(imgTexture, rgbaMat);
+            OpenCVMatUnityUtils.Texture2DToMat(imgTexture, rgbaMat);
             Debug.Log("rgbaMat ToString " + rgbaMat.ToString());
 
             if (faceLandmarkDetector == null)
+            {
                 faceLandmarkDetector = new FaceLandmarkDetector(sp_human_face_68_dat_filepath);
+            }
 
             faceMaskColorCorrector = faceMaskColorCorrector ?? new FaceMaskColorCorrector();
             FrontalFaceChecker frontalFaceChecker = new FrontalFaceChecker(width, height);
@@ -204,7 +212,9 @@ namespace FaceMaskExample
             else
             {
                 if (cascade == null)
+                {
                     cascade = new CascadeClassifier(haarcascade_frontalface_alt_xml_filepath);
+                }
                 //if (cascade.empty())
                 //{
                 //    Debug.LogError("cascade file is not loaded. Please copy from “DlibFaceLandmarkDetector/StreamingAssets/DlibFaceLandmarkDetector/” to “Assets/StreamingAssets/DlibFaceLandmarkDetector/” folder. ");
@@ -216,7 +226,7 @@ namespace FaceMaskExample
 
                 MatOfRect faces = new MatOfRect();
                 Imgproc.equalizeHist(gray, gray);
-                cascade.detectMultiScale(gray, faces, 1.1f, 2, 0 | Objdetect.CASCADE_SCALE_IMAGE, new Size(gray.cols() * 0.05, gray.cols() * 0.05), new Size());
+                cascade.detectMultiScale(gray, faces, 1.1f, 2, 0 | Xobjdetect.CASCADE_SCALE_IMAGE, new Size(gray.cols() * 0.05, gray.cols() * 0.05), new Size());
                 //Debug.Log ("faces " + faces.dump ());
 
                 detectResult = faces.toList();
@@ -333,9 +343,8 @@ namespace FaceMaskExample
                 }
             }
 
-
             Texture2D texture = new Texture2D(rgbaMat.cols(), rgbaMat.rows(), TextureFormat.RGBA32, false);
-            OpenCVMatUtils.MatToTexture2D(rgbaMat, texture);
+            OpenCVMatUnityUtils.MatToTexture2D(rgbaMat, texture);
 
             // Set the Texture2D as the main texture of the Renderer component attached to the game object
             gameObject.transform.GetComponent<Renderer>().material.mainTexture = texture;
@@ -347,19 +356,27 @@ namespace FaceMaskExample
         /// <summary>
         /// Raises the destroy event.
         /// </summary>
-        void OnDestroy()
+        private void OnDestroy()
         {
             if (faceMaskColorCorrector != null)
+            {
                 faceMaskColorCorrector.Dispose();
+            }
 
             if (faceLandmarkDetector != null)
+            {
                 faceLandmarkDetector.Dispose();
+            }
 
             if (cascade != null)
+            {
                 cascade.Dispose();
+            }
 
             if (cts != null)
+            {
                 cts.Dispose();
+            }
         }
 
         /// <summary>
@@ -376,7 +393,9 @@ namespace FaceMaskExample
         public void OnShuffleButtonClick()
         {
             if (imgTexture != null)
+            {
                 Run();
+            }
         }
 
         /// <summary>
@@ -387,7 +406,9 @@ namespace FaceMaskExample
             useDlibFaceDetecter = useDlibFaceDetecterToggle.isOn;
 
             if (imgTexture != null)
+            {
                 Run();
+            }
         }
 
         /// <summary>
@@ -398,7 +419,9 @@ namespace FaceMaskExample
             enableColorCorrection = enableColorCorrectionToggle.isOn;
 
             if (imgTexture != null)
+            {
                 Run();
+            }
         }
 
         /// <summary>
@@ -409,7 +432,9 @@ namespace FaceMaskExample
             filterNonFrontalFaces = filterNonFrontalFacesToggle.isOn;
 
             if (imgTexture != null)
+            {
                 Run();
+            }
         }
 
         /// <summary>
@@ -420,7 +445,9 @@ namespace FaceMaskExample
             displayFaceRects = displayFaceRectsToggle.isOn;
 
             if (imgTexture != null)
+            {
                 Run();
+            }
         }
 
         /// <summary>
@@ -431,7 +458,9 @@ namespace FaceMaskExample
             displayDebugFacePoints = displayDebugFacePointsToggle.isOn;
 
             if (imgTexture != null)
+            {
                 Run();
+            }
         }
     }
 }

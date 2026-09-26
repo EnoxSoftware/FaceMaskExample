@@ -28,7 +28,6 @@ namespace FaceMaskExample
             //Imgproc.erode(baseAreaMaskMat, baseAreaMaskMat, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size (width * 0.01, height * 0.01)), new Point(-1, -1), 1, Core.BORDER_CONSTANT, new Scalar(0, 0, 0, 255));
             Imgproc.blur(baseAreaMaskMat, baseAreaMaskMat, new Size(width * 0.03, height * 0.03));
 
-
             Mat exclusionAreaMaskMat = new Mat((int)height, (int)width, CvType.CV_8UC4);
             exclusionAreaMaskMat.setTo(new Scalar(0, 0, 0, 255));
             foreach (Vector2[] exclusionArea in exclusionAreas)
@@ -43,12 +42,11 @@ namespace FaceMaskExample
             //Imgproc.dilate(exclusionAreaMaskMat, exclusionAreaMaskMat, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size (width * 0.002, height * 0.002)), new Point(-1, -1), 1, Core.BORDER_CONSTANT, new Scalar(0));
             Imgproc.blur(exclusionAreaMaskMat, exclusionAreaMaskMat, new Size(width * 0.01, height * 0.01), new Point(-1, -1), Core.BORDER_CONSTANT);
 
-
             Mat maskMat = new Mat((int)height, (int)width, CvType.CV_8UC4);
             Core.bitwise_xor(baseAreaMaskMat, exclusionAreaMaskMat, maskMat);
 
             Texture2D texture = new Texture2D((int)width, (int)height, TextureFormat.RGB24, false);
-            OpenCVMatUtils.MatToTexture2D(maskMat, texture);
+            OpenCVMatUnityUtils.MatToTexture2D(maskMat, texture);
 
             maskMat.Dispose();
             baseAreaMaskMat.Dispose();

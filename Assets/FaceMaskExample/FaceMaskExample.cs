@@ -15,14 +15,17 @@ namespace FaceMaskExample
         public Text exampleTitle;
         public Text versionInfo;
         public ScrollRect scrollRect;
-        static float verticalNormalizedPosition = 1f;
+#if UNITY_6000_5_OR_NEWER
+        [Unity.Scripting.LifecycleManagement.NoAutoStaticsCleanup]
+#endif
+        private static float verticalNormalizedPosition = 1f;
 
         // Use this for initialization
-        void Start()
+        private void Start()
         {
             exampleTitle.text = "FaceMask Example " + Application.version;
 
-            versionInfo.text = Core.NATIVE_LIBRARY_NAME + " " + OpenCVEnv.GetVersion() + " (" + Core.VERSION + ")";
+            versionInfo.text = Core.NATIVE_LIBRARY_NAME + " " + OpenCVForUnityEnv.GetVersion() + " (" + Core.VERSION + ")";
             versionInfo.text += " / " + "dlibfacelandmarkdetector" + " " + DlibEnv.GetVersion();
             versionInfo.text += " / UnityEditor " + Application.unityVersion;
             versionInfo.text += " / ";
@@ -57,7 +60,7 @@ namespace FaceMaskExample
         }
 
         // Update is called once per frame
-        void Update()
+        private void Update()
         {
 
         }
@@ -66,7 +69,6 @@ namespace FaceMaskExample
         {
             verticalNormalizedPosition = scrollRect.verticalNormalizedPosition;
         }
-
 
         public void OnShowLicenseButtonClick()
         {
@@ -78,14 +80,9 @@ namespace FaceMaskExample
             SceneManager.LoadScene("Texture2DFaceMaskExample");
         }
 
-        public void OnVideoCaptureMaskExampleButtonClick()
+        public void OnMultiSourceFaceMaskExampleButtonClick()
         {
-            SceneManager.LoadScene("VideoCaptureFaceMaskExample");
-        }
-
-        public void OnWebCamTextureFaceMaskExampleButtonClick()
-        {
-            SceneManager.LoadScene("WebCamTextureFaceMaskExample");
+            SceneManager.LoadScene("MultiSourceFaceMaskExample");
         }
     }
 }

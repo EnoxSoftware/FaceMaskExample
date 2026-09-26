@@ -8,8 +8,8 @@ public class FaceMaskData : MonoBehaviour
 
     public Texture2D image
     {
-        get { return this._image; }
-        set { this._image = value; }
+        get { return _image; }
+        set { _image = value; }
     }
 
     /// <summary>
@@ -29,8 +29,8 @@ public class FaceMaskData : MonoBehaviour
 
     public Rect faceRect
     {
-        get { return this._faceRect; }
-        set { this._faceRect = value; }
+        get { return _faceRect; }
+        set { _faceRect = value; }
     }
 
     [SerializeField]
@@ -107,7 +107,7 @@ public class FaceMaskData : MonoBehaviour
 
     public List<Vector2> landmarkPoints
     {
-        get { return this._landmarkPoints; }
-        set { this._landmarkPoints = value; }
+        get { return _landmarkPoints; }
+        set { _landmarkPoints = value; }
     }
 }

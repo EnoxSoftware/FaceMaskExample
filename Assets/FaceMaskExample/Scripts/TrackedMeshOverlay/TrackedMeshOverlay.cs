@@ -48,12 +48,12 @@ namespace FaceMaskExample
         protected ObjectPool objectPool;
         protected Dictionary<int, TrackedMesh> showingObjects = new Dictionary<int, TrackedMesh>();
 
-        void Awake()
+        private void Awake()
         {
             Initialize("TrackedMeshOverlay");
         }
 
-        void OnDestroy()
+        private void OnDestroy()
         {
             overlayTransform = null;
             targetTransform = null;
@@ -70,7 +70,9 @@ namespace FaceMaskExample
         protected virtual GameObject GetPoolObject(Transform parent)
         {
             if (objectPool == null)
+            {
                 return null;
+            }
 
             GameObject newObj = objectPool.GetInstance(parent);
             if (newObj != null)
@@ -84,14 +86,16 @@ namespace FaceMaskExample
             }
         }
 
-        protected virtual void Initialize(String name)
+        protected virtual void Initialize(string name)
         {
             GameObject obj = new GameObject(name);
             overlayTransform = obj.transform;
             overlayTransform.parent = gameObject.transform.parent;
 
             if (_baseObject != null)
+            {
                 SetBaseObject(_baseObject);
+            }
         }
 
         protected virtual void SetBaseObject(GameObject obj)
@@ -142,13 +146,18 @@ namespace FaceMaskExample
         public virtual TrackedMesh CreateObject(int id, Texture2D tex = null)
         {
             if (_baseObject == null)
+            {
                 Debug.LogError("The baseObject does not exist.");
+            }
 
             if (!showingObjects.ContainsKey(id))
             {
                 GameObject obj = GetPoolObject(overlayTransform);
                 if (obj == null)
+                {
                     return null;
+                }
+
                 TrackedMesh tm = obj.GetComponent<TrackedMesh>();
                 if (tm != null)
                 {
@@ -178,7 +187,10 @@ namespace FaceMaskExample
                 TrackedMesh tm = showingObjects[id];
 
                 if (vertices.Length != tm.meshFilter.mesh.vertices.Length)
+                {
                     Debug.LogError("The number of vertices does not match.");
+                }
+
                 tm.meshFilter.mesh.vertices = vertices;
 
                 if (triangles != null)
@@ -205,7 +217,10 @@ namespace FaceMaskExample
             if (showingObjects.ContainsKey(id))
             {
                 if (showingObjects[id] != null)
+                {
                     showingObjects[id].gameObject.SetActive(false);
+                }
+
                 showingObjects.Remove(id);
             }
         }
@@ -215,7 +230,9 @@ namespace FaceMaskExample
             foreach (int key in showingObjects.Keys)
             {
                 if (showingObjects[key] != null)
+                {
                     showingObjects[key].gameObject.SetActive(false);
+                }
             }
 
             showingObjects.Clear();

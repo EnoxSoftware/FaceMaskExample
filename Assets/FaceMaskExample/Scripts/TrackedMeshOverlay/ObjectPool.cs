@@ -16,7 +16,7 @@ namespace FaceMaskExample
         private List<GameObject> pooledObjectList = new List<GameObject>();
         private IEnumerator removeObjectCheckCoroutine;
 
-        void OnEnable()
+        private void OnEnable()
         {
             if (interval > 0)
             {
@@ -25,7 +25,7 @@ namespace FaceMaskExample
             }
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
             if (removeObjectCheckCoroutine != null)
             {
@@ -34,7 +34,7 @@ namespace FaceMaskExample
             }
         }
 
-        void OnDestroy()
+        private void OnDestroy()
         {
             DestroyAllObjects();
         }
@@ -101,7 +101,7 @@ namespace FaceMaskExample
             return null;
         }
 
-        IEnumerator RemoveObjectCheck()
+        private IEnumerator RemoveObjectCheck()
         {
             while (true)
             {

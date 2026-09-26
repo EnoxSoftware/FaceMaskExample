@@ -1,17 +1,20 @@
-using DlibFaceLandmarkDetector;
-using DlibFaceLandmarkDetector.UnityIntegration;
-using OpenCVForUnity.CoreModule;
-using OpenCVForUnity.ImgprocModule;
-using OpenCVForUnity.ObjdetectModule;
-using FaceMaskExample.RectangleTrack;
-using OpenCVForUnity.UnityIntegration;
-using OpenCVForUnity.UnityIntegration.Helper.Source2Mat;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using DlibFaceLandmarkDetector;
+using DlibFaceLandmarkDetector.UnityIntegration;
+using DlibFaceLandmarkDetector.UnityIntegration.Helper.UI;
+using FaceMaskExample.RectangleTrack;
+using OpenCVForUnity.CoreModule;
+using OpenCVForUnity.Extensions.SourceToMat;
+using OpenCVForUnity.ImgprocModule;
+using OpenCVForUnity.UnityIntegration;
+using OpenCVForUnity.UnityIntegration.Helper.SourceToMat;
+using OpenCVForUnity.XobjdetectModule;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using DlibOpenCVUtils = DlibFaceLandmarkDetector.Extensions.DlibOpenCVUtils;
 using Rect = OpenCVForUnity.CoreModule.Rect;
 
 namespace FaceMaskExample
@@ -19,7 +22,7 @@ namespace FaceMaskExample
     /// <summary>
     /// MultiSource FaceMask Example
     /// </summary>
-    [RequireComponent(typeof(MultiSource2MatHelper), typeof(TrackedMeshOverlay))]
+    [RequireComponent(typeof(MultiSourceToMatHelper), typeof(TrackedMeshOverlay))]
     public class MultiSourceFaceMaskExample : MonoBehaviour
     {
         [HeaderAttribute("Additional FaceMask Option")]
@@ -119,142 +122,156 @@ namespace FaceMaskExample
         /// <summary>
         /// The gray mat.
         /// </summary>
-        Mat grayMat;
+        private Mat grayMat;
 
         /// <summary>
         /// The texture.
         /// </summary>
-        Texture2D texture;
+        private Texture2D texture;
+
+        /// <summary>
+        /// The generated alpha mask texture owned by this example.
+        /// </summary>
+        private Texture2D alphaMaskTexture;
 
         /// <summary>
         /// The cascade.
         /// </summary>
-        CascadeClassifier cascade;
+        private CascadeClassifier cascade;
 
         /// <summary>
         /// The detection based tracker.
         /// </summary>
-        RectangleTracker rectangleTracker;
+        private RectangleTracker rectangleTracker;
 
         /// <summary>
         /// The multi source to mat helper.
         /// </summary>
-        MultiSource2MatHelper multiSource2MatHelper;
+        private MultiSourceToMatHelper multiSourceToMatHelper;
 
         /// <summary>
         /// The face landmark detector.
         /// </summary>
-        FaceLandmarkDetector faceLandmarkDetector;
+        private FaceLandmarkDetector faceLandmarkDetector;
 
         /// <summary>
         /// The mean points filter dictionary.
         /// </summary>
-        Dictionary<int, LowPassPointsFilter> lowPassFilterDict;
+        private Dictionary<int, LowPassPointsFilter> lowPassFilterDict;
 
         /// <summary>
         /// The optical flow points filter dictionary.
         /// </summary>
-        Dictionary<int, OFPointsFilter> opticalFlowFilterDict;
+        private Dictionary<int, OFPointsFilter> opticalFlowFilterDict;
 
         /// <summary>
         /// The face mask color corrector.
         /// </summary>
-        FaceMaskColorCorrector faceMaskColorCorrector;
+        private FaceMaskColorCorrector faceMaskColorCorrector;
 
         /// <summary>
         /// The frontal face checker.
         /// </summary>
-        FrontalFaceChecker frontalFaceChecker;
+        private FrontalFaceChecker frontalFaceChecker;
 
         /// <summary>
         /// The mesh overlay.
         /// </summary>
-        TrackedMeshOverlay meshOverlay;
+        private TrackedMeshOverlay meshOverlay;
 
         /// <summary>
         /// The Shader.PropertyToID for "_Fade".
         /// </summary>
-        int shader_FadeID;
+        private int shader_FadeID;
 
         /// <summary>
         /// The Shader.PropertyToID for "_ColorCorrection".
         /// </summary>
-        int shader_ColorCorrectionID;
+        private int shader_ColorCorrectionID;
 
         /// <summary>
         /// The Shader.PropertyToID for "_LUTTex".
         /// </summary>
-        int shader_LUTTexID;
+        private int shader_LUTTexID;
 
         /// <summary>
         /// The face mask texture.
         /// </summary>
-        Texture2D faceMaskTexture;
+        private Texture2D faceMaskTexture;
+
+        /// <summary>
+        /// Indicates whether the current face mask texture is owned by this example.
+        /// </summary>
+        private bool isFaceMaskTextureOwned;
 
         /// <summary>
         /// The face mask mat.
         /// </summary>
-        Mat faceMaskMat;
+        private Mat faceMaskMat;
 
         /// <summary>
         /// The index number of face mask data.
         /// </summary>
-        int faceMaskDataIndex = 0;
+        private int faceMaskDataIndex = 0;
 
         /// <summary>
         /// The detected face rect in mask mat.
         /// </summary>
-        UnityEngine.Rect faceRectInMask;
+        private UnityEngine.Rect faceRectInMask;
 
         /// <summary>
         /// The detected face landmark points in mask mat.
         /// </summary>
-        List<Vector2> faceLandmarkPointsInMask;
+        private List<Vector2> faceLandmarkPointsInMask;
 
         /// <summary>
         /// The haarcascade_frontalface_alt_xml_filepath.
         /// </summary>
-        string haarcascade_frontalface_alt_xml_filepath;
+        private string haarcascade_frontalface_alt_xml_filepath;
 
         /// <summary>
         /// The sp_human_face_68_dat_filepath.
         /// </summary>
-        string sp_human_face_68_dat_filepath;
+        private string sp_human_face_68_dat_filepath;
 
         /// <summary>
         /// The FPS monitor.
         /// </summary>
-        FpsMonitor fpsMonitor;
+        private FpsMonitor fpsMonitor;
 
         /// <summary>
         /// The CancellationTokenSource.
         /// </summary>
-        CancellationTokenSource cts = new CancellationTokenSource();
+        private CancellationTokenSource cts = new CancellationTokenSource();
 
         // Use this for initialization
-        async void Start()
+        private async void Start()
         {
             fpsMonitor = GetComponent<FpsMonitor>();
 
-            multiSource2MatHelper = gameObject.GetComponent<MultiSource2MatHelper>();
-            multiSource2MatHelper.OutputColorFormat = Source2MatHelperColorFormat.RGBA;
+            multiSourceToMatHelper = gameObject.GetComponent<MultiSourceToMatHelper>();
+            multiSourceToMatHelper.OutputColorFormat = SourceToMatColorFormat.RGBA;
 
             // Asynchronously retrieves the readable file path from the StreamingAssets directory.
             if (fpsMonitor != null)
+            {
                 fpsMonitor.ConsoleText = "Preparing file access...";
+            }
 
-            haarcascade_frontalface_alt_xml_filepath = await DlibEnv.GetFilePathTaskAsync("DlibFaceLandmarkDetector/haarcascade_frontalface_alt.xml", cancellationToken: cts.Token);
-            sp_human_face_68_dat_filepath = await DlibEnv.GetFilePathTaskAsync("DlibFaceLandmarkDetector/sp_human_face_68.dat", cancellationToken: cts.Token);
+            haarcascade_frontalface_alt_xml_filepath = await DlibEnv.GetFilePathAsync("DlibFaceLandmarkDetector/haarcascade_frontalface_alt.xml", cancellationToken: cts.Token);
+            sp_human_face_68_dat_filepath = await DlibEnv.GetFilePathAsync("DlibFaceLandmarkDetector/sp_human_face_68.dat", cancellationToken: cts.Token);
 
             if (fpsMonitor != null)
+            {
                 fpsMonitor.ConsoleText = "";
+            }
 
             Run();
         }
 
         private void Run()
         {
-            meshOverlay = this.GetComponent<TrackedMeshOverlay>();
+            meshOverlay = GetComponent<TrackedMeshOverlay>();
 
             // Customize face mask.
             GameObject newBaseObject = Instantiate(meshOverlay.baseObject);
@@ -268,11 +285,10 @@ namespace FaceMaskExample
 
             Texture alphaMask = tm.material.GetTexture("_MaskTex");
             Vector2[] uv = tm.meshFilter.sharedMesh.uv2;
-            Texture2D newAlphaMask = CreateFaceMaskAlphaMaskTexture(alphaMask.width, alphaMask.height, uv, makeBothEyesTransparent, makeMouthTransparent);
-            tm.material.SetTexture("_MaskTex", newAlphaMask);
+            alphaMaskTexture = CreateFaceMaskAlphaMaskTexture(alphaMask.width, alphaMask.height, uv, makeBothEyesTransparent, makeMouthTransparent);
+            tm.material.SetTexture("_MaskTex", alphaMaskTexture);
 
             meshOverlay.baseObject = newBaseObject;
-
 
             shader_FadeID = Shader.PropertyToID("_Fade");
             shader_ColorCorrectionID = Shader.PropertyToID("_ColorCorrection");
@@ -294,7 +310,7 @@ namespace FaceMaskExample
             filterNonFrontalFacesToggle.isOn = filterNonFrontalFaces;
             displayDebugFacePointsToggle.isOn = displayDebugFacePoints;
 
-            multiSource2MatHelper.Initialize();
+            multiSourceToMatHelper.Initialize();
         }
 
         /// <summary>
@@ -304,7 +320,7 @@ namespace FaceMaskExample
         {
             Debug.Log("OnSourceToMatHelperInitialized");
 
-            Mat rgbaMat = multiSource2MatHelper.GetMat();
+            Mat rgbaMat = multiSourceToMatHelper.FrameMat;
 
             texture = new Texture2D(rgbaMat.cols(), rgbaMat.rows(), TextureFormat.RGBA32, false);
 
@@ -329,7 +345,6 @@ namespace FaceMaskExample
                 Camera.main.orthographicSize = height / 2;
             }
 
-
             if (fpsMonitor != null)
             {
                 fpsMonitor.Add("width", rgbaMat.width().ToString());
@@ -349,6 +364,20 @@ namespace FaceMaskExample
             meshOverlay.UpdateOverlayTransform(gameObject.transform);
 
             OnChangeFaceMaskButtonClick();
+
+            if (!multiSourceToMatHelper.IsPlaying && !multiSourceToMatHelper.IsPaused)
+            {
+                multiSourceToMatHelper.Play();
+            }
+        }
+
+        /// <summary>
+        /// Recreates example-owned frame resources after the helper frame layout changes.
+        /// </summary>
+        public void OnFrameMatLayoutChanged()
+        {
+            DisposeFrameResources();
+            OnSourceToMatHelperInitialized();
         }
 
         /// <summary>
@@ -358,31 +387,7 @@ namespace FaceMaskExample
         {
             Debug.Log("OnSourceToMatHelperDisposed");
 
-            grayMat.Dispose();
-
-            if (texture != null)
-            {
-                Texture2D.Destroy(texture);
-                texture = null;
-            }
-
-            rectangleTracker.Reset();
-            meshOverlay.Reset();
-
-            foreach (var key in lowPassFilterDict.Keys)
-            {
-                lowPassFilterDict[key].Dispose();
-            }
-            lowPassFilterDict.Clear();
-            foreach (var key in opticalFlowFilterDict.Keys)
-            {
-                opticalFlowFilterDict[key].Dispose();
-            }
-            opticalFlowFilterDict.Clear();
-
-            faceMaskColorCorrector.Reset();
-
-            frontalFaceChecker.Dispose();
+            DisposeFrameResources();
         }
 
         /// <summary>
@@ -390,7 +395,7 @@ namespace FaceMaskExample
         /// </summary>
         /// <param name="errorCode">Error code.</param>
         /// <param name="message">Message.</param>
-        public void OnSourceToMatHelperErrorOccurred(Source2MatHelperErrorCode errorCode, string message)
+        public void OnSourceToMatHelperErrorOccurred(SourceToMatErrorCode errorCode, string message)
         {
             Debug.Log("OnSourceToMatHelperErrorOccurred " + errorCode + ":" + message);
 
@@ -401,12 +406,12 @@ namespace FaceMaskExample
         }
 
         // Update is called once per frame
-        void Update()
+        private void Update()
         {
-            if (multiSource2MatHelper.IsPlaying() && multiSource2MatHelper.DidUpdateThisFrame())
+            if (multiSourceToMatHelper.IsPlaying && multiSourceToMatHelper.DidUpdateThisFrame)
             {
 
-                Mat rgbaMat = multiSource2MatHelper.GetMat();
+                Mat rgbaMat = multiSourceToMatHelper.FrameMat;
 
                 // detect faces.
                 List<Rect> detectResult = new List<Rect>();
@@ -430,7 +435,7 @@ namespace FaceMaskExample
                     {
                         Imgproc.equalizeHist(grayMat, equalizeHistMat);
 
-                        cascade.detectMultiScale(equalizeHistMat, faces, 1.1f, 2, 0 | Objdetect.CASCADE_SCALE_IMAGE, new Size(equalizeHistMat.cols() * 0.15, equalizeHistMat.cols() * 0.15), new Size());
+                        cascade.detectMultiScale(equalizeHistMat, faces, 1.1f, 2, 0 | Xobjdetect.CASCADE_SCALE_IMAGE, new Size(equalizeHistMat.cols() * 0.15, equalizeHistMat.cols() * 0.15), new Size());
 
                         detectResult = faces.toList();
                     }
@@ -442,7 +447,6 @@ namespace FaceMaskExample
                     }
                 }
 
-                
                 // face tracking.
                 rectangleTracker.UpdateTrackedObjects(detectResult);
                 List<TrackedRect> trackedRects = new List<TrackedRect>();
@@ -454,9 +458,14 @@ namespace FaceMaskExample
                     if (openCVRect.State == TrackedState.NEW)
                     {
                         if (!lowPassFilterDict.ContainsKey(openCVRect.Id))
+                        {
                             lowPassFilterDict.Add(openCVRect.Id, new LowPassPointsFilter((int)faceLandmarkDetector.GetShapePredictorNumParts()));
+                        }
+
                         if (!opticalFlowFilterDict.ContainsKey(openCVRect.Id))
+                        {
                             opticalFlowFilterDict.Add(openCVRect.Id, new OFPointsFilter((int)faceLandmarkDetector.GetShapePredictorNumParts()));
+                        }
                     }
                     else if (openCVRect.State == TrackedState.DELETED)
                     {
@@ -595,7 +604,6 @@ namespace FaceMaskExample
                         //Imgproc.putText (rgbaMat, " " + frontalFaceChecker.GetFrontalFaceRate (landmarkPoints [i]), new Point (rect.xMin, rect.yMin - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar (255, 255, 255, 255), 2, Imgproc.LINE_AA, false);
                     }
                 }
-                
 
                 // draw face points.
                 if (displayDebugFacePoints)
@@ -605,7 +613,6 @@ namespace FaceMaskExample
                         DrawFaceLandmark(rgbaMat, landmarkPoints[i], new Scalar(0, 255, 0, 255), 2);
                     }
                 }
-                
 
                 // display face mask image.
                 if (faceMaskTexture != null && faceMaskMat != null)
@@ -634,12 +641,14 @@ namespace FaceMaskExample
                     Imgproc.warpAffine(faceMaskMat, rgbaMat, trans, rgbaMat.size(), Imgproc.INTER_LINEAR, Core.BORDER_TRANSPARENT, new Scalar(0));
 
                     if (displayFaceRects || displayDebugFacePointsToggle)
-                        OpenCVMatUtils.Texture2DToMat(faceMaskTexture, faceMaskMat);
+                    {
+                        OpenCVMatUnityUtils.Texture2DToMat(faceMaskTexture, faceMaskMat);
+                    }
                 }
 
                 //Imgproc.putText (rgbaMat, "W:" + rgbaMat.width () + " H:" + rgbaMat.height () + " SO:" + Screen.orientation, new Point (5, rgbaMat.rows () - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar (255, 255, 255, 255), 1, Imgproc.LINE_AA, false);
 
-                OpenCVMatUtils.MatToTexture2D(rgbaMat, texture);
+                OpenCVMatUnityUtils.MatToTexture2D(rgbaMat, texture);
             }
         }
 
@@ -649,14 +658,21 @@ namespace FaceMaskExample
             float imageHeight = meshOverlay.height;
 
             if (maskImageWidth == 0)
+            {
                 maskImageWidth = imageWidth;
+            }
 
             if (maskImageHeight == 0)
+            {
                 maskImageHeight = imageHeight;
+            }
 
             TrackedMesh tm = meshOverlay.GetObjectById(tr.Id);
 
-            if (tm == null) return;
+            if (tm == null)
+            {
+                return;
+            }
 
             Vector3[] vertices = tm.meshFilter.mesh.vertices;
             if (vertices.Length == landmarkPoints.Count)
@@ -712,44 +728,127 @@ namespace FaceMaskExample
             Texture2D LUTTex = faceMaskColorCorrector.UpdateLUTTex(id, src, dst, src_landmarkPoints, dst_landmarkPoints);
             TrackedMesh tm = meshOverlay.GetObjectById(id);
 
-            if (tm == null) return;
+            if (tm == null)
+            {
+                return;
+            }
 
             tm.sharedMaterial.SetTexture(shader_LUTTexID, LUTTex);
+        }
+
+        private void DisposeFrameResources()
+        {
+            if (grayMat != null)
+            {
+                grayMat.Dispose();
+                grayMat = null;
+            }
+
+            if (texture != null)
+            {
+                Texture2D.Destroy(texture);
+                texture = null;
+            }
+
+            if (faceMaskMat != null)
+            {
+                faceMaskMat.Dispose();
+                faceMaskMat = null;
+            }
+
+            if (isFaceMaskTextureOwned && faceMaskTexture != null)
+            {
+                Texture2D.Destroy(faceMaskTexture);
+            }
+
+            faceMaskTexture = null;
+            isFaceMaskTextureOwned = false;
+            faceLandmarkPointsInMask = null;
+
+            if (cascade != null)
+            {
+                cascade.Dispose();
+                cascade = null;
+            }
+
+            if (rectangleTracker != null)
+            {
+                rectangleTracker.Reset();
+            }
+
+            if (meshOverlay != null)
+            {
+                meshOverlay.Reset();
+            }
+
+            if (lowPassFilterDict != null)
+            {
+                foreach (LowPassPointsFilter filter in lowPassFilterDict.Values)
+                {
+                    filter.Dispose();
+                }
+
+                lowPassFilterDict.Clear();
+            }
+
+            if (opticalFlowFilterDict != null)
+            {
+                foreach (OFPointsFilter filter in opticalFlowFilterDict.Values)
+                {
+                    filter.Dispose();
+                }
+
+                opticalFlowFilterDict.Clear();
+            }
+
+            if (faceMaskColorCorrector != null)
+            {
+                faceMaskColorCorrector.Reset();
+            }
+
+            if (frontalFaceChecker != null)
+            {
+                frontalFaceChecker.Dispose();
+                frontalFaceChecker = null;
+            }
         }
 
         /// <summary>
         /// Raises the destroy event.
         /// </summary>
-        void OnDestroy()
+        private void OnDestroy()
         {
-            if (multiSource2MatHelper != null)
-                multiSource2MatHelper.Dispose();
+            DisposeFrameResources();
 
-            if (cascade != null)
-                cascade.Dispose();
+            if (alphaMaskTexture != null)
+            {
+                Texture2D.Destroy(alphaMaskTexture);
+                alphaMaskTexture = null;
+            }
 
             if (rectangleTracker != null)
+            {
                 rectangleTracker.Dispose();
+                rectangleTracker = null;
+            }
 
             if (faceLandmarkDetector != null)
+            {
                 faceLandmarkDetector.Dispose();
-
-            foreach (var key in lowPassFilterDict.Keys)
-            {
-                lowPassFilterDict[key].Dispose();
+                faceLandmarkDetector = null;
             }
-            lowPassFilterDict.Clear();
-            foreach (var key in opticalFlowFilterDict.Keys)
-            {
-                opticalFlowFilterDict[key].Dispose();
-            }
-            opticalFlowFilterDict.Clear();
 
             if (faceMaskColorCorrector != null)
+            {
                 faceMaskColorCorrector.Dispose();
+                faceMaskColorCorrector = null;
+            }
 
             if (cts != null)
+            {
                 cts.Dispose();
+                cts = null;
+            }
         }
 
         /// <summary>
@@ -765,7 +864,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnPlayButtonClick()
         {
-            multiSource2MatHelper.Play();
+            multiSourceToMatHelper.Play();
         }
 
         /// <summary>
@@ -773,7 +872,7 @@ namespace FaceMaskExample
         /// </summary>
         public void OnPauseButtonClick()
         {
-            multiSource2MatHelper.Pause();
+            multiSourceToMatHelper.Pause();
         }
 
         /// <summary>
@@ -781,7 +880,10 @@ namespace FaceMaskExample
         /// </summary>
         public void OnChangeCameraButtonClick()
         {
-            multiSource2MatHelper.RequestedIsFrontFacing = !multiSource2MatHelper.RequestedIsFrontFacing;
+            if (multiSourceToMatHelper.ActiveHelper is ICameraFacingToMatHelperControls cameraFacingControls)
+            {
+                cameraFacingControls.RequestedIsFrontFacing = !cameraFacingControls.IsFrontFacing;
+            }
         }
 
         /// <summary>
@@ -855,7 +957,9 @@ namespace FaceMaskExample
             RemoveFaceMask();
 
             if (faceMaskDatas.Count == 0)
+            {
                 return;
+            }
 
             FaceMaskData maskData = faceMaskDatas[faceMaskDataIndex];
             faceMaskDataIndex = (faceMaskDataIndex < faceMaskDatas.Count - 1) ? faceMaskDataIndex + 1 : 0;
@@ -880,7 +984,7 @@ namespace FaceMaskExample
 
             faceMaskTexture = maskData.image;
             faceMaskMat = new Mat(faceMaskTexture.height, faceMaskTexture.width, CvType.CV_8UC4);
-            OpenCVMatUtils.Texture2DToMat(faceMaskTexture, faceMaskMat);
+            OpenCVMatUnityUtils.Texture2DToMat(faceMaskTexture, faceMaskMat);
 
             if (maskData.isDynamicMode)
             {
@@ -920,10 +1024,10 @@ namespace FaceMaskExample
             RemoveFaceMask();
 
             // Capture webcam frame.
-            if (multiSource2MatHelper.IsPlaying())
+            if (multiSourceToMatHelper.IsPlaying)
             {
 
-                Mat rgbaMat = multiSource2MatHelper.GetMat();
+                Mat rgbaMat = multiSourceToMatHelper.FrameMat;
 
                 faceRectInMask = DetectFace(rgbaMat);
                 if (faceRectInMask.width == 0 && faceRectInMask.height == 0)
@@ -937,8 +1041,9 @@ namespace FaceMaskExample
                 rect = rect.intersect(new Rect(0, 0, rgbaMat.width(), rgbaMat.height()));
 
                 faceMaskTexture = new Texture2D(rect.width, rect.height, TextureFormat.RGBA32, false);
+                isFaceMaskTextureOwned = true;
                 faceMaskMat = new Mat(rgbaMat, rect).clone();
-                OpenCVMatUtils.MatToTexture2D(faceMaskMat, faceMaskTexture);
+                OpenCVMatUnityUtils.MatToTexture2D(faceMaskMat, faceMaskTexture);
                 Debug.Log("faceMaskMat ToString " + faceMaskMat.ToString());
 
                 faceRectInMask = DetectFace(faceMaskMat);
@@ -967,7 +1072,13 @@ namespace FaceMaskExample
 
         private void RemoveFaceMask()
         {
+            if (isFaceMaskTextureOwned && faceMaskTexture != null)
+            {
+                Texture2D.Destroy(faceMaskTexture);
+            }
+
             faceMaskTexture = null;
+            isFaceMaskTextureOwned = false;
             if (faceMaskMat != null)
             {
                 faceMaskMat.Dispose();
@@ -986,7 +1097,9 @@ namespace FaceMaskExample
                 DlibOpenCVUtils.SetImage(faceLandmarkDetector, mat);
                 List<UnityEngine.Rect> result = faceLandmarkDetector.Detect();
                 if (result.Count >= 1)
+                {
                     return result[0];
+                }
             }
             else
             {
@@ -999,7 +1112,7 @@ namespace FaceMaskExample
                     Imgproc.cvtColor(mat, grayMat, Imgproc.COLOR_RGBA2GRAY);
                     Imgproc.equalizeHist(grayMat, equalizeHistMat);
 
-                    cascade.detectMultiScale(equalizeHistMat, faces, 1.1f, 2, 0 | Objdetect.CASCADE_SCALE_IMAGE, new Size(equalizeHistMat.cols() * 0.15, equalizeHistMat.cols() * 0.15), new Size());
+                    cascade.detectMultiScale(equalizeHistMat, faces, 1.1f, 2, 0 | Xobjdetect.CASCADE_SCALE_IMAGE, new Size(equalizeHistMat.cols() * 0.15, equalizeHistMat.cols() * 0.15), new Size());
 
                     List<Rect> faceList = faces.toList();
                     if (faceList.Count >= 1)
@@ -1025,7 +1138,9 @@ namespace FaceMaskExample
         private void ExtendForehead(Mesh mesh)
         {
             if (mesh.vertices.Length != 68)
+            {
                 throw new ArgumentException("Invalid face mask mesh", "mesh");
+            }
 
             List<Vector2> verticesList = new List<Vector2>(mesh.vertices.Length);
             foreach (Vector3 v in mesh.vertices)
@@ -1079,7 +1194,9 @@ namespace FaceMaskExample
         private void AddForeheadPoints(List<Vector2> points)
         {
             if (points.Count != 68)
+            {
                 throw new ArgumentException("Invalid face landmark points", "points");
+            }
 
             Vector2 noseLength = new Vector2(points[27].x - points[30].x, points[27].y - points[30].y);
             Vector2 glabellaPoint = new Vector2((points[19].x + points[24].x) / 2f, (points[19].y + points[24].y) / 2f);
@@ -1096,37 +1213,64 @@ namespace FaceMaskExample
             if (points.Count == 73)
             { // If landmark points of forehead exists.
                 for (int i = 1; i <= 16; ++i)
+                {
                     Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                }
 
                 for (int i = 28; i <= 30; ++i)
+                {
                     Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                }
 
                 for (int i = 18; i <= 21; ++i)
+                {
                     Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                }
+
                 for (int i = 23; i <= 26; ++i)
+                {
                     Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                }
+
                 for (int i = 31; i <= 35; ++i)
+                {
                     Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                }
+
                 Imgproc.line(imgMat, new Point(points[30].x, points[30].y), new Point(points[35].x, points[35].y), color, thickness);
 
                 for (int i = 37; i <= 41; ++i)
+                {
                     Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                }
+
                 Imgproc.line(imgMat, new Point(points[36].x, points[36].y), new Point(points[41].x, points[41].y), color, thickness);
 
                 for (int i = 43; i <= 47; ++i)
+                {
                     Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                }
+
                 Imgproc.line(imgMat, new Point(points[42].x, points[42].y), new Point(points[47].x, points[47].y), color, thickness);
 
                 for (int i = 49; i <= 59; ++i)
+                {
                     Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                }
+
                 Imgproc.line(imgMat, new Point(points[48].x, points[48].y), new Point(points[59].x, points[59].y), color, thickness);
 
                 for (int i = 61; i <= 67; ++i)
+                {
                     Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), color, thickness);
+                }
+
                 Imgproc.line(imgMat, new Point(points[60].x, points[60].y), new Point(points[67].x, points[67].y), color, thickness);
 
                 for (int i = 69; i <= 72; ++i)
+                {
                     Imgproc.line(imgMat, new Point(points[i].x, points[i].y), new Point(points[i - 1].x, points[i - 1].y), new Scalar(0, 255, 0, 255), thickness);
+                }
             }
             else
             {
@@ -1137,7 +1281,9 @@ namespace FaceMaskExample
         private Texture2D CreateFaceMaskAlphaMaskTexture(float width, float height, Vector2[] uv, bool makeBothEyesTransparent = true, bool makeMouthTransparent = true)
         {
             if (uv.Length != 68 && uv.Length != 73)
+            {
                 throw new ArgumentException("Invalid face landmark points", "uv");
+            }
 
             Vector2[] facialContourUVPoints = new Vector2[0];
             if (uv.Length == 68)

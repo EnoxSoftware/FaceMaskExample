@@ -407,7 +407,9 @@ namespace FaceMaskExample
             string directory = Path.GetDirectoryName(filename);
 
             if (Directory.Exists(directory + "/") == true)
+            {
                 return true;
+            }
 
             string[] values = directory.Split(new char[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
             string checkFolder = string.Empty;

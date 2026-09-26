@@ -6,14 +6,14 @@ namespace FaceMaskExample
     [CustomEditor(typeof(FaceMaskData))]
     public class FaceMaskDataEditor : Editor
     {
-        SerializedProperty image;
-        SerializedProperty isDynamicMode;
-        SerializedProperty enableColorCorrection;
-        SerializedProperty faceRect;
-        SerializedProperty landmarkPoints;
+        private SerializedProperty image;
+        private SerializedProperty isDynamicMode;
+        private SerializedProperty enableColorCorrection;
+        private SerializedProperty faceRect;
+        private SerializedProperty landmarkPoints;
 
-        bool isDrag = false;
-        int currentPointID = -1;
+        private bool isDrag = false;
+        private int currentPointID = -1;
 
         private void OnEnable()
         {
@@ -140,33 +140,58 @@ namespace FaceMaskExample
                 Handles.color = lineColor;
 
                 for (int i = 1; i <= 16; ++i)
+                {
                     DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i - 1).vector2Value);
+                }
 
                 for (int i = 28; i <= 30; ++i)
+                {
                     DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i - 1).vector2Value);
+                }
 
                 for (int i = 18; i <= 21; ++i)
+                {
                     DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i - 1).vector2Value);
+                }
+
                 for (int i = 23; i <= 26; ++i)
+                {
                     DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i - 1).vector2Value);
+                }
+
                 for (int i = 31; i <= 35; ++i)
+                {
                     DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i - 1).vector2Value);
+                }
+
                 DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(30).vector2Value, landmarkPoints.GetArrayElementAtIndex(35).vector2Value);
 
                 for (int i = 37; i <= 41; ++i)
+                {
                     DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i - 1).vector2Value);
+                }
+
                 DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(36).vector2Value, landmarkPoints.GetArrayElementAtIndex(41).vector2Value);
 
                 for (int i = 43; i <= 47; ++i)
+                {
                     DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i - 1).vector2Value);
+                }
+
                 DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(42).vector2Value, landmarkPoints.GetArrayElementAtIndex(47).vector2Value);
 
                 for (int i = 49; i <= 59; ++i)
+                {
                     DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i - 1).vector2Value);
+                }
+
                 DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(48).vector2Value, landmarkPoints.GetArrayElementAtIndex(59).vector2Value);
 
                 for (int i = 61; i <= 67; ++i)
+                {
                     DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(i).vector2Value, landmarkPoints.GetArrayElementAtIndex(i - 1).vector2Value);
+                }
+
                 DrawLine(imageRect, landmarkPoints.GetArrayElementAtIndex(60).vector2Value, landmarkPoints.GetArrayElementAtIndex(67).vector2Value);
 
                 // Draw Points.
@@ -200,9 +225,10 @@ namespace FaceMaskExample
                     pt.x += imageRect.x;
                     pt.y += imageRect.y;
                     if (rect.Contains(pt))
+                    {
                         return i;
+                    }
                 }
-
             }
             return -1;
         }

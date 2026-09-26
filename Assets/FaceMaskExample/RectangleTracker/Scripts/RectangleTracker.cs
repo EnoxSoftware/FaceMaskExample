@@ -40,7 +40,6 @@ namespace FaceMaskExample.RectangleTrack
         private List<float> _weightsPositionsSmoothing = new List<float>();
         private List<float> _weightsSizesSmoothing = new List<float>();
 
-
         // Public Properties
         /// <summary>
         /// Gets the list of currently tracked objects.
@@ -112,11 +111,11 @@ namespace FaceMaskExample.RectangleTrack
 
             if (trackerParamerers != null)
             {
-                this._trackerParameters = trackerParamerers;
+                _trackerParameters = trackerParamerers;
             }
             else
             {
-                this._trackerParameters = new TrackerParameters();
+                _trackerParameters = new TrackerParameters();
             }
 
             _weightsPositionsSmoothing.Add(1);
@@ -148,7 +147,9 @@ namespace FaceMaskExample.RectangleTrack
                 }
 
                 if (_trackedObjects[i].State > TrackedState.NEW_DISPLAYED && _trackedObjects[i].State < TrackedState.NEW_HIDED)
+                {
                     result.Add(r);
+                }
 
                 //LOGD("DetectionBasedTracker::process: found a object with SIZE %d x %d, rect={%d, %d, %d x %d}", r.width, r.height, r.x, r.y, r.width, r.height);
                 //Debug.Log("GetObjects" + r.width + " " + r.height + " " + r.x + " " + r.y + " " + r.width + " " + r.height + " " + trackedObjects[i].state + " " + trackedObjects[i].numDetectedFrames + " " + trackedObjects[i].numFramesNotDetected);
@@ -193,7 +194,9 @@ namespace FaceMaskExample.RectangleTrack
         public void UpdateTrackedObjects(List<Rect> detectedObjects)
         {
             if (detectedObjects == null)
+            {
                 throw new ArgumentNullException("detectedObjects");
+            }
 
             Rect[] correctionRects = CreateCorrectionBySpeedOfRects();
 
@@ -206,7 +209,6 @@ namespace FaceMaskExample.RectangleTrack
             }
 
             int[] correspondence = Enumerable.Repeat<int>((int)TrackedRectState.NEW_RECTANGLE, N2).ToArray();
-
 
             for (int i = 0; i < N1; i++)
             {
@@ -263,7 +265,9 @@ namespace FaceMaskExample.RectangleTrack
                     for (int j = 0; j < N2; j++)
                     {
                         if (correspondence[j] >= 0)
+                        {
                             continue;
+                        }
 
                         if (IsCollideByRectangle(detectedObjects[j], bestRect, _trackerParameters.CoeffRectangleOverlap))
                         {
@@ -301,7 +305,9 @@ namespace FaceMaskExample.RectangleTrack
                     }
                     _trackedObjects[i].NumFramesNotDetected = 0;
                     if (_trackedObjects[i].State != TrackedState.DELETED)
+                    {
                         _trackedObjects[i].State = TrackedState.DISPLAYED;
+                    }
                 }
                 else if (i == (int)TrackedRectState.NEW_RECTANGLE)
                 {
@@ -533,9 +539,13 @@ namespace FaceMaskExample.RectangleTrack
             int y2 = Math.Min(a.y + a.height, b.y + b.height);
 
             if (x2 >= x1 && y2 >= y1)
+            {
                 return new Rect(x1, y1, x2 - x1, y2 - y1);
+            }
             else
+            {
                 return new Rect();
+            }
         }
 
         private bool IsCollideByRectangle(Rect a, Rect b, float coeffRectangleOverlap)
@@ -555,9 +565,13 @@ namespace FaceMaskExample.RectangleTrack
             int ey2 = (int)(ey1 + eh);
 
             if (mx1 <= ex2 && ex1 <= mx2 && my1 <= ey2 && ey1 <= my2)
+            {
                 return true;
+            }
             else
+            {
                 return false;
+            }
         }
     }
 }

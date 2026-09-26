@@ -45,19 +45,21 @@ namespace FaceMaskExample
             get { return _meshRenderer.sharedMaterial; }
         }
 
-        void Awake()
+        private void Awake()
         {
-            _meshFilter = this.GetComponent<MeshFilter>();
-            _meshRenderer = this.GetComponent<MeshRenderer>();
-            _meshCollider = this.GetComponent<MeshCollider>();
+            _meshFilter = GetComponent<MeshFilter>();
+            _meshRenderer = GetComponent<MeshRenderer>();
+            _meshCollider = GetComponent<MeshCollider>();
 
             if (_meshRenderer.material == null)
+            {
                 throw new Exception("material does not exist.");
+            }
 
             _meshRenderer.sortingOrder = 32767;
         }
 
-        void OnDestroy()
+        private void OnDestroy()
         {
             if (_meshFilter != null && _meshFilter.mesh != null)
             {

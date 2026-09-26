@@ -1,6 +1,7 @@
-using OpenCVForUnity.CoreModule;
-using OpenCVForUnity.UnityIntegration;
 using System;
+using OpenCVForUnity.CoreModule;
+using OpenCVForUnity.Extensions;
+using OpenCVForUnity.UnityIntegration;
 using UnityEngine;
 
 namespace FaceMaskExample
@@ -11,25 +12,39 @@ namespace FaceMaskExample
         public static void CalculateLUT(Mat src, Mat dst, Mat src_mask, Mat dst_mask, Texture2D LUTTex)
         {
             if (src.channels() < 3)
+            {
                 throw new ArgumentException("src.channels() < 3");
+            }
 
             if (dst.channels() < 3)
+            {
                 throw new ArgumentException("dst.channels() < 3");
+            }
 
             if (src_mask.channels() != 1)
+            {
                 throw new ArgumentException("src_mask.channels() != 1");
+            }
 
             if (dst_mask.channels() != 1)
+            {
                 throw new ArgumentException("dst_mask.channels() != 1");
+            }
 
             if (src_mask != null && src.total() != src_mask.total())
+            {
                 throw new ArgumentException("src.total() != src_mask.total()");
+            }
 
             if (dst_mask != null && dst.total() != dst_mask.total())
+            {
                 throw new ArgumentException("dst.total() != dst_mask.total()");
+            }
 
             if (LUTTex.width != 256 || LUTTex.height != 1 || LUTTex.format != TextureFormat.RGB24)
+            {
                 throw new ArgumentException("Invalid LUTTex.");
+            }
 
             byte[] LUT = new byte[3 * 256];
             double[][] src_hist = new double[3][];
@@ -61,18 +76,18 @@ namespace FaceMaskExample
             if (src_mask != null)
             {
                 src_mask_byte = new byte[src_mask.total() * src_mask.channels()];
-                OpenCVMatUtils.CopyFromMat<byte>(src_mask, src_mask_byte);
+                MatBufferUtils.CopyFromMat<byte>(src_mask, src_mask_byte);
             }
             if (dst_mask != null)
             {
                 dst_mask_byte = new byte[dst_mask.total() * dst_mask.channels()];
-                OpenCVMatUtils.CopyFromMat<byte>(dst_mask, dst_mask_byte);
+                MatBufferUtils.CopyFromMat<byte>(dst_mask, dst_mask_byte);
             }
 
             byte[] src_byte = new byte[src.total() * src.channels()];
-            OpenCVMatUtils.CopyFromMat<byte>(src, src_byte);
+            MatBufferUtils.CopyFromMat<byte>(src, src_byte);
             byte[] dst_byte = new byte[dst.total() * dst.channels()];
-            OpenCVMatUtils.CopyFromMat<byte>(dst, dst_byte);
+            MatBufferUtils.CopyFromMat<byte>(dst, dst_byte);
 
             int pixel_i = 0;
             int channels = src.channels();
@@ -86,17 +101,23 @@ namespace FaceMaskExample
                         byte c = src_byte[pixel_i];
                         src_hist[0][c]++;
                         if (src_hist[0][c] > src_histMax[0])
+                        {
                             src_histMax[0] = src_hist[0][c];
+                        }
 
                         c = src_byte[pixel_i + 1];
                         src_hist[1][c]++;
                         if (src_hist[1][c] > src_histMax[1])
+                        {
                             src_histMax[1] = src_hist[1][c];
+                        }
 
                         c = src_byte[pixel_i + 2];
                         src_hist[2][c]++;
                         if (src_hist[2][c] > src_histMax[2])
+                        {
                             src_histMax[2] = src_hist[2][c];
+                        }
                     }
 
                     // Advance to next pixel
@@ -110,17 +131,23 @@ namespace FaceMaskExample
                     byte c = src_byte[pixel_i];
                     src_hist[0][c]++;
                     if (src_hist[0][c] > src_histMax[0])
+                    {
                         src_histMax[0] = src_hist[0][c];
+                    }
 
                     c = src_byte[pixel_i + 1];
                     src_hist[1][c]++;
                     if (src_hist[1][c] > src_histMax[1])
+                    {
                         src_histMax[1] = src_hist[1][c];
+                    }
 
                     c = src_byte[pixel_i + 2];
                     src_hist[2][c]++;
                     if (src_hist[2][c] > src_histMax[2])
+                    {
                         src_histMax[2] = src_hist[2][c];
+                    }
 
                     // Advance to next pixel
                     pixel_i += channels;
@@ -139,17 +166,23 @@ namespace FaceMaskExample
                         byte c = dst_byte[pixel_i];
                         dst_hist[0][c]++;
                         if (dst_hist[0][c] > dst_histMax[0])
+                        {
                             dst_histMax[0] = dst_hist[0][c];
+                        }
 
                         c = dst_byte[pixel_i + 1];
                         dst_hist[1][c]++;
                         if (dst_hist[1][c] > dst_histMax[1])
+                        {
                             dst_histMax[1] = dst_hist[1][c];
+                        }
 
                         c = dst_byte[pixel_i + 2];
                         dst_hist[2][c]++;
                         if (dst_hist[2][c] > dst_histMax[2])
+                        {
                             dst_histMax[2] = dst_hist[2][c];
+                        }
                     }
                     // Advance to next pixel
                     pixel_i += channels;
@@ -162,17 +195,23 @@ namespace FaceMaskExample
                     byte c = dst_byte[pixel_i];
                     dst_hist[0][c]++;
                     if (dst_hist[0][c] > dst_histMax[0])
+                    {
                         dst_histMax[0] = dst_hist[0][c];
+                    }
 
                     c = dst_byte[pixel_i + 1];
                     dst_hist[1][c]++;
                     if (dst_hist[1][c] > dst_histMax[1])
+                    {
                         dst_histMax[1] = dst_hist[1][c];
+                    }
 
                     c = dst_byte[pixel_i + 2];
                     dst_hist[2][c]++;
                     if (dst_hist[2][c] > dst_histMax[2])
+                    {
                         dst_histMax[2] = dst_hist[2][c];
+                    }
 
                     // Advance to next pixel
                     pixel_i += channels;

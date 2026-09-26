@@ -1,7 +1,7 @@
-using OpenCVForUnity.Calib3dModule;
-using OpenCVForUnity.CoreModule;
 using System;
 using System.Collections.Generic;
+using OpenCVForUnity.CoreModule;
+using OpenCVForUnity.GeometryModule;
 using UnityEngine;
 
 namespace FaceMaskExample
@@ -12,19 +12,19 @@ namespace FaceMaskExample
     /// </summary>
     public class FrontalFaceChecker
     {
-        float imageWidth;
-        float imageHeight;
-        Point[] landmarkPoints = new Point[7];
-        Matrix4x4 transformationM = new Matrix4x4();
-        MatOfPoint3f objectPoints;
-        MatOfPoint2f imagePoints;
-        Mat rvec;
-        Mat tvec;
-        Mat rotM;
-        Mat camMatrix;
-        MatOfDouble distCoeffs;
-        Matrix4x4 invertYM;
-        Matrix4x4 invertZM;
+        private float imageWidth;
+        private float imageHeight;
+        private Point[] landmarkPoints = new Point[7];
+        private Matrix4x4 transformationM = new Matrix4x4();
+        private MatOfPoint3f objectPoints;
+        private MatOfPoint2f imagePoints;
+        private Mat rvec;
+        private Mat tvec;
+        private Mat rotM;
+        private Mat camMatrix;
+        private MatOfDouble distCoeffs;
+        private Matrix4x4 invertYM;
+        private Matrix4x4 invertZM;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FaceSwapperExample.FrontalFaceChecker"/> class.
@@ -79,25 +79,39 @@ namespace FaceMaskExample
         public void Dispose()
         {
             if (objectPoints != null && !objectPoints.IsDisposed)
+            {
                 objectPoints.Dispose();
+            }
 
             if (imagePoints != null && !imagePoints.IsDisposed)
+            {
                 imagePoints.Dispose();
+            }
 
             if (rvec != null && !rvec.IsDisposed)
+            {
                 rvec.Dispose();
+            }
 
             if (tvec != null && !tvec.IsDisposed)
+            {
                 tvec.Dispose();
+            }
 
             if (rotM != null && !rotM.IsDisposed)
+            {
                 rotM.Dispose();
+            }
 
             if (camMatrix != null && !camMatrix.IsDisposed)
+            {
                 camMatrix.Dispose();
+            }
 
             if (distCoeffs != null && !distCoeffs.IsDisposed)
+            {
                 distCoeffs.Dispose();
+            }
         }
 
         /// <summary>
@@ -108,7 +122,9 @@ namespace FaceMaskExample
         public Vector3 GetFrontalFaceAngles(List<Vector2> points)
         {
             if (points.Count < 68)
+            {
                 throw new ArgumentException("Invalid face landmark points", "points");
+            }
 
             landmarkPoints[0].x = (points[38].x + points[41].x) / 2;
             landmarkPoints[0].y = (points[38].y + points[41].y) / 2;
@@ -134,7 +150,7 @@ namespace FaceMaskExample
 
             imagePoints.fromArray(landmarkPoints);
 
-            Calib3d.solvePnP(objectPoints, imagePoints, camMatrix, distCoeffs, rvec, tvec);
+            Geometry.solvePnP(objectPoints, imagePoints, camMatrix, distCoeffs, rvec, tvec);
 
             double tvec_z = tvec.get(2, 0)[0];
 
@@ -143,7 +159,7 @@ namespace FaceMaskExample
 
             if (!double.IsNaN(tvec_z))
             {
-                Calib3d.Rodrigues(rvec, rotM);
+                Geometry.Rodrigues(rvec, rotM);
 
                 //Debug.Log (rotM.dump());
 

@@ -1,7 +1,8 @@
-using OpenCVForUnity.CoreModule;
-using OpenCVForUnity.ImgprocModule;
 using System;
 using System.Collections.Generic;
+using OpenCVForUnity.CoreModule;
+using OpenCVForUnity.GeometryModule;
+using OpenCVForUnity.ImgprocModule;
 using UnityEngine;
 using Rect = OpenCVForUnity.CoreModule.Rect;
 
@@ -9,12 +10,12 @@ namespace FaceMaskExample
 {
     public class FaceMaskColorCorrector
     {
-        Mat src_mask;
-        Mat dst_mask;
-        Dictionary<int, Texture2D> LUTTexDict;
+        private Mat src_mask;
+        private Mat dst_mask;
+        private Dictionary<int, Texture2D> LUTTexDict;
 
-        Point[] src_facialContourPoints;
-        Point[] dst_facialContourPoints;
+        private Point[] src_facialContourPoints;
+        private Point[] dst_facialContourPoints;
 
         public FaceMaskColorCorrector()
         {
@@ -36,7 +37,9 @@ namespace FaceMaskExample
         public virtual void CreateLUTTex(int id)
         {
             if (!LUTTexDict.ContainsKey(id))
+            {
                 LUTTexDict.Add(id, new Texture2D(256, 1, TextureFormat.RGB24, false));
+            }
         }
 
         public virtual Texture2D UpdateLUTTex(int id, Mat src, Mat dst, List<Vector2> src_landmarkPoints, List<Vector2> dst_landmarkPoints)
@@ -60,8 +63,8 @@ namespace FaceMaskExample
             GetFacialContourPoints(dst_landmarkPoints, dst_facialContourPoints);
 
             // Get facial contour rect.
-            Rect src_facialContourRect = Imgproc.boundingRect(new MatOfPoint(src_facialContourPoints));
-            Rect dst_facialContourRect = Imgproc.boundingRect(new MatOfPoint(dst_facialContourPoints));
+            Rect src_facialContourRect = Geometry.boundingRect(new MatOfPoint(src_facialContourPoints));
+            Rect dst_facialContourRect = Geometry.boundingRect(new MatOfPoint(dst_facialContourPoints));
             src_facialContourRect = src_facialContourRect.intersect(new Rect(0, 0, src.width(), src.height()));
             dst_facialContourRect = dst_facialContourRect.intersect(new Rect(0, 0, dst.width(), dst.height()));
 
@@ -115,10 +118,14 @@ namespace FaceMaskExample
         protected virtual void GetFacialContourPoints(List<Vector2> landmark_points, Point[] dst_points)
         {
             if (landmark_points.Count < 9)
+            {
                 throw new ArgumentException("Invalid landmark_points.");
+            }
 
             if (dst_points.Length != 9)
+            {
                 throw new ArgumentException("Invalid points.");
+            }
 
             dst_points[0].x = landmark_points[0].x;
             dst_points[0].y = landmark_points[0].y;
@@ -145,7 +152,9 @@ namespace FaceMaskExample
         protected virtual void GetPointsInFrame(Mat frame, Point[] points, Point[] dst_points)
         {
             if (points.Length != dst_points.Length)
+            {
                 throw new ArgumentException("points.Length != dst_points.Length");
+            }
 
             Size wholesize = new Size();
             Point ofs = new Point();
